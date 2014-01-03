@@ -58,6 +58,7 @@ app.get('/kwh/:resolution/:count?', function (req, res) {
 
 
 app.listen(3000);
+
 logger.info("HTTP listening on port 3000");
 logger.info("Running from: ", process.cwd());
 logger.info("args: ", process.argv);
