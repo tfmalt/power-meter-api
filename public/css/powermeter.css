@@ -1,0 +1,36 @@
+
+body {
+    padding-top: 90px;
+    padding-bottom: 70px;
+}
+
+.col-md-4, .col-md-8 {
+}
+
+div.panel h3 {
+    font-weight: bold;
+}
+
+div.panel-body {
+    padding: 0;
+    margin: auto;
+    height: 320px;
+}
+
+div#usage-chart-now {
+    width: 290px;
+    margin: auto;
+    padding: 0;
+    height: 100%;
+}
+
+div#usage-chart-hour {
+    height: 300px;
+}
+
+div#total-day-value, div#total-today-value {
+    margin: auto;
+    font-size: 36px;
+    text-align: center;
+    padding: 12px, 0, 0, 0;
+}
