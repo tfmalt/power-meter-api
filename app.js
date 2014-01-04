@@ -30,6 +30,7 @@ var ctrl  = power.controller;
 var app = express();
 
 app.use(express.logger());
+app.use(express.bodyParser());
 app.use(express.static(
     path.dirname(process.argv[1]) + '/public', 
     {maxAge: 7*24*60*60*1000})
@@ -56,6 +57,17 @@ app.get('/kwh/:resolution/:count?', function (req, res) {
     ctrl.kwh.handler(req, res);
 });
 
+app.put('/meter/total', function (req, res) {
+    logger.info("Got call to put /meter/total jj: ");
+    logger.info(req.body);
+    ctrl.meter.total.put(req, res);
+});
+
+app.get('/meter/total', function (req, res) {
+    logger.info("Got get request to /meter/total");
+    res.setHeader('Cache-Control', 'public, max-age=10');
+    ctrl.meter.total.get(req, res);
+});
 
 app.listen(3000);
 
