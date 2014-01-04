@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app>
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -69,9 +69,33 @@
                 <div class="col-md-4">
                     <div class="panel panel-success">
                         <div class="panel-heading">
+                            <h3 class="panel-title">SD60 Power Meter Total</h3>
+                        </div>
+                        <div class="panel-body" id="sd60-total" 
+                            ng-controller="PowerCtrl">
+                            <form class="form-inline" role="form" 
+                                ng-submit="setMeter()">
+                                <div class="form-group">
+                                <input class="form-control" 
+                                    type="number" 
+                                    max="999999"
+                                    min="142927"
+                                    ng-model="meterTotal" 
+                                    required>
+                                </div>
+                                <button class="btn btn-success" type="submit">
+                                    set
+                                </button>
+                            </form>
+                            
+                                <h2>{{meterTotalWithDelta}}</h2>
+                        </div>
+                    </div>
+                    <div class="panel panel-success">
+                        <div class="panel-heading">
                             <h3 class="panel-title">kWh totalt siste døgn</h3>
                         </div>
-                        <div class="panel-body">
+                        <div class="panel-body" id="sd60-total-day">
                             <div id="kwh-day-total">
                                 <div id="total-day-date"></div>
                                 <div id="total-day-value"></div>
@@ -98,8 +122,10 @@
 
         <script src="//code.jquery.com/jquery-2.0.3.min.js"></script>
         <script src="/js/bootstrap.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.7/angular.min.js"></script>
         <script type="text/javascript" src="https://www.google.com/jsapi"></script>
         <script type="text/javascript" src="/js/powergraphs.js"></script>
+        <script type="text/javascript" src="/js/powerapp.js"></script>
         <script type="text/javascript">
             $().ready(function () {
                 power.initialize();
