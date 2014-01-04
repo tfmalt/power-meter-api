@@ -24,6 +24,15 @@ div#usage-chart-now {
     height: 100%;
 }
 
+div#sd60-total {
+    height: 100px;
+    text-align: center;
+}
+
+div#sd60-total-day {
+    height: 140px;
+}
+
 div#usage-chart-hour {
     height: 300px;
 }
