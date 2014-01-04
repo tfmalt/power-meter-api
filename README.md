@@ -16,7 +16,9 @@
 
 ## Iteration 5: Install Varnish in front of the web app.
 
-## Iteration 6: Migrate events to websocket.
+## Iteration 6: Move webapp to angular.js and add form to update actual power meter reading.
+
+## Iteration 7: Migrate events to websocket.
 
 
 ## MIT LICENSE
