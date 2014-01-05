@@ -2,7 +2,9 @@
 <html lang="en" ng-app>
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="description" content="">
         <meta name="author" content="Thomas Malt <thomas@malt.no>">
         <link rel="shortcut icon" href="../../assets/ico/favicon.png">
@@ -32,15 +34,22 @@
                 </div>
             </div>
         </div>
-        <div class="container">
+        <div class="container" ng-controller="PowerCtrl">
             <div class="row">
                 <div class="col-md-4">
                     <div class="panel panel-success">
                         <div class="panel-heading">
                             <h3 class="panel-title">Forbruk nå</h3>
                         </div>
-                        <div class="panel-body">
+                        <div class="panel-body" id="usage-chart-now-body">
                             <div id="usage-chart-now"></div>
+                            <div id="power-meter-total">
+                                <span class="power-label">Total kWh</span><br>
+                                <span class="total" ng-click="handleTotalClick()">
+                                    {{meterTotalWithDelta}}
+                                </span><br>
+                                <span class="timestamp">{{meterTotalTimestamp}}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -71,13 +80,13 @@
                         <div class="panel-heading">
                             <h3 class="panel-title">SD60 Power Meter Total</h3>
                         </div>
-                        <div class="panel-body" id="sd60-total" 
-                            ng-controller="PowerCtrl">
+                        <div class="panel-body" id="sd60-total">
                             <form class="form-inline" role="form" 
                                 ng-submit="setMeter()">
                                 <div class="form-group">
                                 <input class="form-control" 
                                     type="number" 
+                                    pattern="[0-9]*"
                                     max="999999"
                                     min="142927"
                                     ng-model="meterTotal" 
@@ -124,6 +133,7 @@
         <script src="/js/bootstrap.min.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.7/angular.min.js"></script>
         <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+        <script type="text/javascript" src="/js/enquire.min.js"></script>
         <script type="text/javascript" src="/js/powergraphs.js"></script>
         <script type="text/javascript" src="/js/powerapp.js"></script>
         <script type="text/javascript">
