@@ -18,10 +18,11 @@ div.panel-body {
 }
 
 div#usage-chart-now {
-    width: 290px;
-    margin: auto;
+    width: 94%;
+    margin-left: 6%;
     padding: 0;
     height: 100%;
+    text-align: center;
 }
 
 div#sd60-total {
@@ -42,4 +43,41 @@ div#total-day-value, div#total-today-value {
     font-size: 36px;
     text-align: center;
     padding: 12px, 0, 0, 0;
+}
+
+@media screen and (max-device-width: 320px) {
+    body {
+        padding-top: 0px;
+    }
+}
+
+@media screen and (max-device-width: 320px) and (orientation: portrait) {
+    div#usage-chart-now-body {
+        height: 380px;
+    }
+
+    div#usage-chart-now {
+        width: 98%;
+        height: 280px;
+        margin-left: 2%;
+    }
+
+    div#power-meter-total {
+        text-align: center;
+    }
+    div#power-meter-total span.power-label, div#power-meter-total span.timestamp {
+        color: #666;
+    }
+    div#power-meter-total span.total {
+        font-size: 36px;
+
+    }
+
+    body {
+    }
+}
+
+@media screen and (max-device-width: 320px) and (orientation: landscape) {
+    body {
+    }
 }
