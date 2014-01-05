@@ -2,7 +2,12 @@
 google.load('visualization', '1', {packages:["gauge", "corechart"]});
 // google.setOnLoadCallback(drawGaugeChart);
 
-var power = {};
+var power = $({});
+
+$(window).on("pageshow", function (e) {
+    // alert("Got pageshow!");
+    console.log("pageshow; ", e);
+});
 
 power.kwh = {};
 power.kwh.day = {};
