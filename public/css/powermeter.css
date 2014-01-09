@@ -72,6 +72,9 @@ div#total-day-value, div#total-today-value {
         font-size: 36px;
 
     }
+    span.onOrange {
+        color: orange;
+    }
 
     body {
     }
