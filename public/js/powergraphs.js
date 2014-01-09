@@ -2,13 +2,15 @@
 google.load('visualization', '1', {packages:["gauge", "corechart"]});
 // google.setOnLoadCallback(drawGaugeChart);
 
-var power = $({});
+/* var power = $({});
 
 $(window).on("pageshow", function (e) {
     // alert("Got pageshow!");
     console.log("pageshow; ", e);
 });
+*/
 
+var power = {};
 power.kwh = {};
 power.kwh.day = {};
 power.kwh.month = {};
@@ -23,8 +25,6 @@ power.watt.hour.stored = {};
 
 
 power.initialize = function () {
-    this.watt.hour.draw();
-    this.watt.now.draw();
     this.kwh.day.hour.draw();
     this.kwh.day.total.draw();
     this.kwh.day.today.draw();
@@ -38,21 +38,23 @@ power.watt.hour.options = {
         duration: 1000,
         easing: "inAndOut"
     },
-    height: "98%",
+    height: "320",
     width: "100%",
     chartArea: {
-        left: 72,
-        width: "86%",
-        height: "76%"
+        left: "11%",
+        width: "84%",
+        height: "80%"
     },
     lineWidth: 2,
     pointSize: 0,
     hAxis: {
-        showTextEvery: 30,
+        showTextEvery: 60,
+        slatedText: true,
+        slantedTextAngle: 60
     },
     vAxis: {
         minValue: 0,
-        maxValue: 12000       
+        maxValue: 12000,
     },
     legend: { position: "none" },
     colors: ['#f6b26b', '#93c47d']
@@ -211,7 +213,7 @@ power.kwh.day.today.draw = function () {
 };
 
 
-power.watt.now.draw = function () {
+power.watt.now.draw = function ($http) {
     power.watt.now.chart = new google.visualization.Gauge(
         document.getElementById('usage-chart-now')
     );
@@ -225,11 +227,11 @@ power.watt.now.draw = function () {
     power.watt.now.chart.draw(data, options);
 
     setInterval(function () {
-        $.getJSON("/usage/10", function (meter) {
-            // console.log("data:", data);
+        $http.get("/usage/10").then(function (res) {
+            console.log("got watt now data:", res);
             var mydata = google.visualization.arrayToDataTable([
                 ['Label', 'Value'],
-                ['Watt', meter.watt]
+                ['Watt', res.data.watt]
             ]);
             power.watt.now.chart.draw(mydata, options);
         });
@@ -237,7 +239,7 @@ power.watt.now.draw = function () {
 };
 
 
-power.watt.hour.draw =  function () {
+power.watt.hour.draw =  function ($http) {
     power.watt.hour.chart = new google.visualization.AreaChart(
         document.getElementById('usage-chart-hour')
     );
@@ -248,7 +250,7 @@ power.watt.hour.draw =  function () {
     power.watt.hour.chart.draw(data, options);
 
     power.watt.hour.stored = {'timestamp': new Date()};
-    power.watt.hour.__draw();
+    power.watt.hour.__draw($http);
 
     setInterval(function () {
         var now    = new Date();
@@ -260,14 +262,14 @@ power.watt.hour.draw =  function () {
             return true;
         }
         
-        power.watt.hour.__draw();
+        power.watt.hour.__draw($http);
     }, 2000);
 };
 
-power.watt.hour.__draw = function () {
-    $.getJSON("/hour/watts", function (meter) {
-        meter.items.unshift(['Label', 'Value']);
-        var data    = google.visualization.arrayToDataTable(meter.items);
+power.watt.hour.__draw = function ($http) {
+    $http.get("/hour/watts").then(function (res) {
+        res.data.items.unshift(['Label', 'Value']);
+        var data    = google.visualization.arrayToDataTable(res.data.items);
         var options = power.watt.hour.options; 
         var stored  = power.watt.hour.stored;
         var chart   = power.watt.hour.chart;
