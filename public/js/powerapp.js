@@ -7,9 +7,11 @@
  * @author Thomas Malt <thomas@malt.no>
  * @copyright Thomas Malt <thomas@malt.no>
  */
-function PowerCtrl($scope, $http, $interval) {
+
+var powerApp = angular.module('powerApp', ['ngTouch', 'ui.bootstrap']);
+powerApp.controller('PowerCtrl', function ($scope, $http, $interval) {
     $http.get("/meter/total").then(function (result) {
-        // console.log("got result from get", result);
+        console.log("initial load of meter total got result from get", result);
         var value = result.data.value;
         var delta = result.data.delta;
 
@@ -17,6 +19,10 @@ function PowerCtrl($scope, $http, $interval) {
         $scope.meterTotalWithDelta = (value + parseFloat(delta)).toFixed(2);
         $scope.meterTotalTimestamp = result.data.timestamp;
     });
+
+    power.watt.now.draw($http);
+    power.watt.hour.draw($http);
+
 
     /**
      * Updates the metertotal with delta field every ten seconds
@@ -46,12 +52,12 @@ function PowerCtrl($scope, $http, $interval) {
         });
     };
 
-    $scope.handleTotalClick = function () {
-        alert("got click yeah");
+    $scope.handleTotalClick = function (e) {
+        angular.element(e.target).toggleClass("onOrange");
     };
-};
+});
 
-enquire.register("screen and (max-device-width: 320px)", {
+/* enquire.register("screen and (max-device-width: 320px)", {
     match: function () {
         // alert("Got match for ios device");
         $('div.navbar-fixed-top').removeClass('navbar-fixed-top');
@@ -60,3 +66,4 @@ enquire.register("screen and (max-device-width: 320px)", {
         alert("Got unmatch for ios device");
     }
 });
+*/
