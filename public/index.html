@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" ng-app>
+<html lang="en" ng-app="powerApp">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
         <link rel="stylesheet" href="/css/powermeter.css">
     </head>
     <body>
-        <div class="navbar navbar-default navbar-fixed-top">
+        <div class="navbar navbar-default">
             <div class="container">
                 <div class="navbar-header">
                     <button type="button" class="navbar-toggle" 
@@ -45,7 +45,7 @@
                             <div id="usage-chart-now"></div>
                             <div id="power-meter-total">
                                 <span class="power-label">Total kWh</span><br>
-                                <span class="total" ng-click="handleTotalClick()">
+                                <span class="total" ng-click="handleTotalClick($event)">
                                     {{meterTotalWithDelta}}
                                 </span><br>
                                 <span class="timestamp">{{meterTotalTimestamp}}</span>
@@ -76,7 +76,7 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="panel panel-success">
+                    <!-- <div class="panel panel-success">
                         <div class="panel-heading">
                             <h3 class="panel-title">SD60 Power Meter Total</h3>
                         </div>
@@ -99,7 +99,8 @@
                             
                                 <h2>{{meterTotalWithDelta}}</h2>
                         </div>
-                    </div>
+                    </div 
+                    -->
                     <div class="panel panel-success">
                         <div class="panel-heading">
                             <h3 class="panel-title">kWh totalt siste døgn</h3>
@@ -128,18 +129,13 @@
                 </div>
             </div>
         </div>
-
-        <script src="//code.jquery.com/jquery-2.0.3.min.js"></script>
-        <script src="/js/bootstrap.min.js"></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.7/angular.min.js"></script>
+        <!-- script src="//code.jquery.com/jquery-2.0.3.min.js"></script -->
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.7/angular.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.7/angular-touch.js"></script>
+        <script type="text/javascript" src="/js/ui-bootstrap-0.9.0.min.js"></script>
         <script type="text/javascript" src="https://www.google.com/jsapi"></script>
         <script type="text/javascript" src="/js/enquire.min.js"></script>
         <script type="text/javascript" src="/js/powergraphs.js"></script>
         <script type="text/javascript" src="/js/powerapp.js"></script>
-        <script type="text/javascript">
-            $().ready(function () {
-                power.initialize();
-            });
-        </script>
     </body>
 </html>
