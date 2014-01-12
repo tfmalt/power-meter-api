@@ -36,7 +36,7 @@
         </div>
         <div class="container" ng-controller="PowerCtrl">
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <div class="panel panel-success">
                         <div class="panel-heading">
                             <h3 class="panel-title">Forbruk nå</h3>
@@ -44,16 +44,35 @@
                         <div class="panel-body" id="usage-chart-now-body">
                             <div id="usage-chart-now"></div>
                             <div id="power-meter-total">
-                                <span class="power-label">Total kWh</span><br>
-                                <span class="total" ng-click="handleTotalClick($event)">
-                                    {{meterTotalWithDelta}}
-                                </span><br>
-                                <span class="timestamp">{{meterTotalTimestamp}}</span>
+                                <table>
+                                    <tr>
+                                        <td colspan="2">
+                                            <span class="power-label">Total kWh</span><br>
+                                            <span class="total" ng-click="handleTotalClick($event)">
+                                                {{meterTotalWithDelta}}</span><br>
+                                            <span class="timestamp">
+                                                {{meterTotalTimestamp}}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <span>Yesterday</span><br>
+                                            <span class="kwh-day">{{kwhYesterday}}</span>
+                                            <span>kWh</span>
+                                        </td>
+                                        <td>
+                                            <span>Today</span><br>
+                                            <span class="kwh-day">{{kwhToday}}</span>
+                                            <span>kWh</span>
+                                        </td>
+                                    </tr>
+                                </table>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-8">
+                <div class="col-md-6">
                     <div class="panel panel-success">
                         <div class="panel-heading">
                             <h3 class="panel-title">Forbruk siste time</h3>
@@ -65,18 +84,18 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-8">
+                <div class="col-md-12">
                     <div class="panel panel-success">
                         <div class="panel-heading">
-                            <h3 class="panel-title">kWh per time siste døgn</h3>
+                            <h3 class="panel-title">kWh per hour last 3 days</h3>
                         </div>
                         <div class="panel-body">
                             <div id="kwh-hour-25"></div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <!-- <div class="panel panel-success">
+                <!-- <div class="col-md-4">
+                    div class="panel panel-success">
                         <div class="panel-heading">
                             <h3 class="panel-title">SD60 Power Meter Total</h3>
                         </div>
@@ -99,22 +118,9 @@
                             
                                 <h2>{{meterTotalWithDelta}}</h2>
                         </div>
-                    </div 
-                    -->
-                    <div class="panel panel-success">
-                        <div class="panel-heading">
-                            <h3 class="panel-title">kWh totalt siste døgn</h3>
-                        </div>
-                        <div class="panel-body" id="sd60-total-day">
-                            <div id="kwh-day-total">
-                                <div id="total-day-date"></div>
-                                <div id="total-day-value"></div>
-                                <div id="total-today-value"></div>
-                            </div>
-                        </div>
-                    </div>
-                
-                </div>
+                        </div> 
+                        
+                    </div -->
             </div>
             <div class="row">
                 <div class="col-md-12">

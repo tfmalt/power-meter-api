@@ -10,6 +10,12 @@
 
 var powerApp = angular.module('powerApp', ['ngTouch', 'ui.bootstrap']);
 powerApp.controller('PowerCtrl', function ($scope, $http, $interval) {
+    $scope.meterTotal          = 0;
+    $scope.meterTotalWithDelta = 0.0;
+    $scope.meterTotalTimestamp = 0;
+    $scope.kwhYesterday        = 0;
+    $scope.kwhToday            = 0;
+
     $http.get("/meter/total").then(function (result) {
         console.log("initial load of meter total got result from get", result);
         var value = result.data.value;
@@ -20,14 +26,23 @@ powerApp.controller('PowerCtrl', function ($scope, $http, $interval) {
         $scope.meterTotalTimestamp = result.data.timestamp;
     });
 
+    $http.get("/kwh/day/1").then(function (res) {
+        $scope.kwhYesterday = res.data.items[0].kwh.toFixed(2);
+    });
+
+    $http.get("/kwh/today").then(function (res) {
+        $scope.kwhToday = res.data.kwh.toFixed(2);
+    });
     power.watt.now.draw($http);
     power.watt.hour.draw($http);
+    power.kwh.day.hour.draw($http);
+    power.kwh.month.day.draw($http);
 
 
     /**
      * Updates the metertotal with delta field every ten seconds
      */
-    var stop = $interval(function () {
+    var stopMeter = $interval(function () {
         // console.log("Told to fetch meter/total as part of interval");
         $http.get("/meter/total").then(function (res) {
             console.log("data from meter total: ", res.data);
@@ -39,6 +54,12 @@ powerApp.controller('PowerCtrl', function ($scope, $http, $interval) {
             $scope.meterTotalTimestamp = time;
         });
     }, 10000);
+
+    var stopKwhToday = $interval(function () {
+        $http.get("/kwh/today").then(function (res) {
+            $scope.kwhToday = res.data.kwh.toFixed(2);
+        });
+    }, 60000);
 
     /**
      * Form handler for the meter input field

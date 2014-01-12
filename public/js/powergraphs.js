@@ -25,9 +25,6 @@ power.watt.hour.stored = {};
 
 
 power.initialize = function () {
-    this.kwh.day.hour.draw();
-    this.kwh.day.total.draw();
-    this.kwh.day.today.draw();
     this.kwh.month.day.draw();
 };
 
@@ -104,19 +101,17 @@ power.kwh.month.day.options = {
 };
               
 
-power.kwh.month.day.draw = function () {
+power.kwh.month.day.draw = function ($http) {
     var chart = new google.visualization.ColumnChart(
         document.getElementById("kwh-day-31")
     );
     power.kwh.month.day.chart = chart;
 
-    $.getJSON(
-        "/kwh/day/31",
-        power.kwh.month.day.__draw        
-    );
+    $http.get("/kwh/day/62").then(power.kwh.month.day.__draw);
 };
 
-power.kwh.month.day.__draw = function (data) {
+power.kwh.month.day.__draw = function (res) {
+    var data = res.data;
     var items = [['Date', 'kWh']];
 
     for (var i = 0; i < data.items.length; i++) {
@@ -155,26 +150,21 @@ power.kwh.day.hour.options = {
     }
 };
 
-power.kwh.day.hour.draw = function () {
+power.kwh.day.hour.draw = function ($http) {
     var chart = new google.visualization.ColumnChart(
         document.getElementById("kwh-hour-25")
     );
     power.kwh.day.hour.chart = chart;
 
-    $.getJSON(
-        "/kwh/hour/25",
-        power.kwh.day.hour.__draw
-    );
-
+    $http.get("/kwh/hour/73").then(power.kwh.day.hour.__draw);
     setInterval( function () {
-        $.getJSON(
-            "/kwh/hour/25", 
-            power.kwh.day.hour.__draw
-        )
+        $http.get("/kwh/hour/73").then(power.kwh.day.hour.__draw);
     }, 5*60*1000);
 };
 
-power.kwh.day.hour.__draw = function (data) {
+power.kwh.day.hour.__draw = function (res) {
+    var data = res.data;
+
     var items = [['Time', 'kWh']];
 
     for (var i = 0; i < data.items.length; i++) {

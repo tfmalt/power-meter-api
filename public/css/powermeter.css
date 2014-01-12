@@ -1,6 +1,6 @@
 
 body {
-    padding-top: 90px;
+    padding-top: 0px;
     padding-bottom: 70px;
 }
 
@@ -18,11 +18,33 @@ div.panel-body {
 }
 
 div#usage-chart-now {
-    width: 94%;
-    margin-left: 6%;
+    width: 58%;
+    margin: 0;
     padding: 0;
     height: 100%;
     text-align: center;
+    float: left;
+}
+
+div#power-meter-total {
+    float: right;
+    margin: 12px 0;
+    text-align: center;
+    width: 42%;
+}
+
+div#power-meter-total span.total {
+    font-size: 36px;
+}
+div#power-meter-total span.kwh-day {
+    font-size: 24px;
+}
+
+div#power-meter-total table {
+    width: 100%;
+}
+div#power-meter-total table tr td {
+    padding: 4px 4px 12px 4px;
 }
 
 div#sd60-total {
@@ -45,10 +67,11 @@ div#total-day-value, div#total-today-value {
     padding: 12px, 0, 0, 0;
 }
 
+span.onOrange {
+    color: orange;
+}
+
 @media screen and (max-device-width: 320px) {
-    body {
-        padding-top: 0px;
-    }
 }
 
 @media screen and (max-device-width: 320px) and (orientation: portrait) {
