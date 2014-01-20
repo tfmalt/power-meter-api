@@ -33,11 +33,11 @@ div#power-meter-total {
     width: 42%;
 }
 
-div#power-meter-total span.total {
-    font-size: 36px;
+div#power-meter-total div.total {
+    font-size: 42px;
 }
 div#power-meter-total span.kwh-day {
-    font-size: 24px;
+    font-size: 28px;
 }
 
 div#power-meter-total table {
@@ -67,31 +67,78 @@ div#total-day-value, div#total-today-value {
     padding: 12px, 0, 0, 0;
 }
 
-span.onOrange {
+.onOrange {
     color: orange;
 }
 
+div.pageshow-marker {
+    background-color: #ffffaa;
+}
+
+.visible {
+    display: visible;
+}
+
+.hidden {
+    display: none;
+}
+
+#form-set-meter {
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+div#power-meter-total span.power-label, div#power-meter-total div.timestamp {
+    color: #666;
+}
+
+input.total {
+    background-color: #fdd;
+    font-size: 36px;
+    border: 0;
+    border-bottom: 1px solid #666;
+    padding: 4px 0 0 0 ;
+    border-radius: 0;
+    height: 52px;
+}
+
 @media screen and (max-device-width: 320px) {
+    input.form-control {
+        width: 66%;
+    }
+}
+
+@media screen and (max-device-width: 320px) and (orientation: landscape) { 
+    div#usage-chart-now-body {
+        height: 260px;
+    }
 }
 
 @media screen and (max-device-width: 320px) and (orientation: portrait) {
     div#usage-chart-now-body {
-        height: 380px;
+        height: 460px;
     }
 
     div#usage-chart-now {
         width: 98%;
         height: 280px;
         margin-left: 2%;
+        float: none;
+
     }
 
     div#power-meter-total {
+        width: 100%;
         text-align: center;
+        float: none;
+        margin: 0;
     }
-    div#power-meter-total span.power-label, div#power-meter-total span.timestamp {
-        color: #666;
+
+    div#power-meter-total table tr td {
+        padding: 0 0 12px 0;
     }
-    div#power-meter-total span.total {
+
+    div#power-meter-total div.total {
         font-size: 36px;
 
     }
