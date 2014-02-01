@@ -100,35 +100,55 @@ powerApp.controller('PowerCtrl', function ($scope, $http, $interval) {
         var data  = {"value": $scope.meterTotal};
         console.log("got told to set meter: ", data, $event);
         $http.put("/meter/total", data).then(function(res) {
-            $scope.meterTotal = res.data.value;
+            $scope.meterTotal          = res.data.value;
             $scope.meterTotalWithDelta = parseFloat(res.data.value).toFixed(2);
+            $scope.meterTotalTimestamp = res.data.timestamp;
         });
 
-        var form  = angular.element(document.getElementById("form-set-meter"));
-        var meter = angular.element(document.getElementById("meter-total"));
+
+        var formEl  = document.getElementById("set-meter-container");
+        var meterEl = document.getElementById("meter-total-container");
+        var rowEl   = document.getElementById("totals-summary-row");
+
+        var form  = angular.element(formEl);
+        var meter = angular.element(meterEl);
+        var row   = angular.element(rowEl);
 
         form.addClass("hidden");
         meter.removeClass("hidden");
+        row.removeClass("hidden");
 
     };
 
     $scope.handleTotalClick = function (e) {
-        var form  = angular.element(document.getElementById("form-set-meter"));
-        var meter = angular.element(document.getElementById("meter-total"));
-        var input = angular.element(document.getElementById("meter-value"));
+        var formEl  = document.getElementById("set-meter-container");
+        var meterEl = document.getElementById("meter-total-container");
+        var inputEl = document.getElementById("meter-value");
+        var rowEl   = document.getElementById("totals-summary-row");
+
+        var form  = angular.element(formEl);
+        var meter = angular.element(meterEl);
+        var input = angular.element(inputEl);
+        var row   = angular.element(rowEl);
 
         input.attr("value", $scope.meterTotalWithDelta);
         form.removeClass("hidden");
         meter.addClass("hidden");
-        // angular.element(e.target).toggleClass("onOrange");
+        row.addClass("hidden");
     };
 
     $scope.handleTotalCancel = function (e) {
-        var form  = angular.element(document.getElementById("form-set-meter"));
-        var meter = angular.element(document.getElementById("meter-total"));
+        var formEl  = document.getElementById("set-meter-container");
+        var meterEl = document.getElementById("meter-total-container");
+        var rowEl   = document.getElementById("totals-summary-row");
+
+        var form  = angular.element(formEl);
+        var meter = angular.element(meterEl);
+        var row   = angular.element(rowEl);
 
         form.addClass("hidden");
         meter.removeClass("hidden");
+        row.removeClass("hidden");
     };
 });
 
