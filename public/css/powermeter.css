@@ -1,8 +1,8 @@
 
 body {
+    
     padding-top: 0px;
-    padding-bottom: 70px;
-    background-color: orange;
+    padding-bottom: 24px;
 }
 
 .col-md-4, .col-md-8 {
@@ -13,8 +13,6 @@ div.panel h3 {
 }
 
 div.panel {
-
-    background-color: rgba(255,255,255,0.6);
 }
 
 div.panel-body {
@@ -37,6 +35,48 @@ div#power-meter-total {
     margin: 12px 0;
     text-align: center;
     width: 42%;
+}
+
+div#meter-total-container {
+    overflow: hidden;
+}
+
+form#form-set-meter div.button-container {
+    padding-top: 6px;
+}
+
+form#form-set-meter div.button-container .btn-lg {
+    width: 80px;
+}
+
+form#form-set-meter div.button-container button {
+    margin-right: 4px;
+}
+
+form#form-set-meter div.input-container {
+    padding-top: 4px;
+}
+
+div#set-meter-container {
+    border: 1px solid #d6e9c6;
+    margin: 0 8px 0 8px;
+    border-radius: 12px;
+    box-shadow: 0 3px 4px rgba(0, 0, 0, 0.25);
+}
+
+div#set-meter-container div.power-label {
+    background-color: #dff0d8;
+    color: #468847;
+    font-weight: bold;
+    border-radius: 12px 12px 0 0;
+}
+
+div#set-meter-container div.timestamp {
+    background-color: #dff0d8;
+    color: #468847;
+    font-weight: bold;
+    border-radius: 0 0 12px 12px;
+    margin-top: 4px;
 }
 
 div#power-meter-total div.total {
@@ -99,13 +139,12 @@ div#power-meter-total span.power-label, div#power-meter-total div.timestamp {
 }
 
 input.total {
-    background-color: #fdd;
-    font-size: 36px;
+    font-size: 40px;
     border: 0;
-    border-bottom: 1px solid #666;
-    padding: 4px 0 0 0 ;
-    border-radius: 0;
-    height: 52px;
+    padding: 0 32px 0 32px;
+    line-height: 40px;
+    border-bottom: 2px solid #999;
+    font-family: monospace;
 }
 
 @media screen and (max-device-width: 320px) {
