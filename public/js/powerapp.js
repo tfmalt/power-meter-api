@@ -85,7 +85,7 @@ powerApp.controller('PowerCtrl', function ($scope, $http, $interval) {
             $scope.meterTotalWithDelta = (value + parseFloat(delta)).toFixed(2);
             $scope.meterTotalTimestamp = time;
         });
-    }, 10000);
+    }, 1000);
 
     var stopKwhToday = $interval(function () {
         $http.get("/kwh/today").then(function (res) {

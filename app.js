@@ -65,7 +65,7 @@ app.put('/meter/total', function (req, res) {
 
 app.get('/meter/total', function (req, res) {
     logger.info("Got get request to /meter/total");
-    res.setHeader('Cache-Control', 'public, max-age=10');
+    res.setHeader('Cache-Control', 'public, max-age=4');
     ctrl.meter.total.get(req, res);
 });
 
