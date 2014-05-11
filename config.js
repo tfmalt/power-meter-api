@@ -3,9 +3,13 @@ exports.server = {
     port: 3001
 };
 
+exports.redis = {
+    host: "",
+    port: 6379,
+    auth_pass: null
+};
+
 exports.corsDomains = [
-    'http://duro.malt.no:3003',
-    'http://www.malt.no:13003',
-    'https://power.malt.no'
+    'https://foo.bar.net'
 ];
 
