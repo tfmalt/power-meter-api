@@ -122,6 +122,7 @@ app.get('/power/meter/total', function (req, res) {
 app.listen(config.server.port || 3000);
 
 logger.info("HTTP listening on port " + config.server.port);
+logger.info("TZ: ", process.env.TZ);
 logger.info("Running from: ", process.cwd());
 logger.info("args: ", process.argv);
 
