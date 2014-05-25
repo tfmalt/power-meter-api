@@ -7,12 +7,12 @@ exports.redis = {
     read: {
         host: "hostname"
         port: 6379,
-        auth_pass: null
+        password: null
     },
     write: {
         host: "hostname"
         port: 6379,
-        auth_pass: ""
+        password: null
     }
 };
 
