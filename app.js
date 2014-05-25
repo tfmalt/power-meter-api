@@ -56,37 +56,67 @@ app.all('*', function (req, res, next) {
 });
 
 
-app.get('/usage/:interval?', function (req, res) {
-    res.setHeader('Cache-Control', 'public, max-age=1');
-    ctrl.handleCurrentUsage(req, res);
+app.get('/power/watts/:interval?', function (req, res) {
+    if (req.params.interval === undefined || req.params.interval.match(/[0-9]+/)) {
+        var interval = parseInt(req.params.interval) || 5;
+        ctrl.watts.get(interval).then( function (body) {
+            logger.info("Got body returned as promised: ", body.length);
+            res.setHeader('Cache-Control', 'public, max-age=1');
+            res.setHeader('Content-Type', 'application/json');
+            res.setHeader('Content-Length', body.length);
+            res.end(body);
+        });
+    }
+    else if (req.params.interval.match(/^hour$/)) {
+        ctrl.watts.hour.get(req.params.type).then( function (body) {
+            logger.info("Got body returned as promised");
+            res.setHeader('Cache-Control', 'public, max-age=4');
+            res.setHeader('Content-Type', 'application/json');
+            res.setHeader('Content-Length', body.length);
+            res.end(body);
+        });
+    }
 });
 
-app.get('/hour/:type?', function (req, res) {
-    res.setHeader('Cache-Control', 'public, max-age=2');
-    ctrl.handleGetHour(req, res);
-});
 
-app.get('/kwh/:resolution/:count?', function (req, res) {
+app.get('/power/kwh/:type/:count?', function (req, res) {
     // req.params.resolution
     var maxage = {
         "today": 60,
         "hour":  5*60,
         "day":   5*60
     };
-    res.setHeader('Cache-Control', 'public, max-age='+maxage[req.params.resolution]);
-    ctrl.kwh.handler(req, res);
+    
+    var type  = req.params.type;
+    var count = req.params.count || 1;
+
+    ctrl.kwh.handler(type, count).then(function (body) { 
+        logger.info("Got body returned as promised: ", body.length);
+        res.setHeader('Cache-Control', 'public, max-age='+maxage[type]);
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Content-Length', body.length);
+        res.end(body);
+    });
 });
 
-app.put('/meter/total', function (req, res) {
+app.put('/power/meter/total', function (req, res) {
     logger.info("Got call to put /meter/total jj: ");
     logger.info(req.body);
-    ctrl.meter.total.put(req, res);
+    ctrl.meter.total.put(req.body.value).then(function (body) {
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Content-Length', body.length);
+        res.end(body);
+    });
 });
 
-app.get('/meter/total', function (req, res) {
+app.get('/power/meter/total', function (req, res) {
     logger.info("Got get request to /meter/total");
     res.setHeader('Cache-Control', 'public, max-age=4');
-    ctrl.meter.total.get(req, res);
+    ctrl.meter.total.get().then(function (body) {
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Content-Length', body.length);
+        res.end(body);
+    });
 });
 
 app.listen(config.server.port || 3000);
