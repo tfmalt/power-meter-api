@@ -9,7 +9,7 @@ ADD . /src
 
 RUN cd /src; npm install
 
-ENV TZ "Europe/Oslo"
+ENV TZ Europe/Oslo
 
 EXPOSE 3001
 CMD ["/usr/bin/node", "/src/app.js"]
