@@ -12,7 +12,7 @@
  */
 
 var power   = require('./lib/power'), 
-    config  = require('./config-private');
+    config  = require('./config');
     logger  = require('winston'), 
     express = require('express'),
     u       = require('underscore'),
