@@ -83,7 +83,7 @@ app.get('/power/kwh/:type/:count?', function (req, res) {
     var maxage = {
         "today": 60,
         "hour":  5*60,
-        "day":   5*60
+        "day":   10*60
     };
     
     var type  = req.params.type;
@@ -110,7 +110,7 @@ app.put('/power/meter/total', function (req, res) {
 
 app.get('/power/meter/total', function (req, res) {
     logger.info("Got get request to /meter/total");
-    res.setHeader('Cache-Control', 'public, max-age=4');
+    res.setHeader('Cache-Control', 'public, max-age=6');
     ctrl.meter.total.get().then(function (body) {
         res.setHeader('Content-Type', 'application/json');
         res.setHeader('Content-Length', body.length);
