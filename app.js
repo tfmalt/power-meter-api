@@ -25,9 +25,8 @@ logger.add(logger.transports.Console, {
     timestamp: true
 });
 
-var ctrl  = power.controller;
-
-var app = express();
+var ctrl = power.controller;
+var app  = express();
 
 app.disable('x-powered-by');
 app.use(express.logger());
@@ -100,7 +99,7 @@ app.get('/power/kwh/:type/:count?', function (req, res) {
 });
 
 app.put('/power/meter/total', function (req, res) {
-    logger.info("Got call to put /meter/total jj: ");
+    logger.info("Got call to put /meter/total jj: ", req.body);
     logger.info(req.body);
     ctrl.meter.total.put(req.body.value).then(function (body) {
         res.setHeader('Content-Type', 'application/json');
