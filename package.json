@@ -1,6 +1,6 @@
 {
   "name": "power-meter-api",
-  "version": "0.3.3",
+  "version": "0.4.0",
   "author": "Thomas Malt",
   "description": "Reading power meter by connecting to an arduino board",
   "private": true,
@@ -11,6 +11,7 @@
     "winston": ">= 0.7.2",
     "q": ">= 1.0.0",
     "underscore": ">= 1.4.4",
+    "vitalsigns": ">= 0.2.2",
     "restify": "~2.7.0",
     "forever": ">= 0.10.0"
   },
