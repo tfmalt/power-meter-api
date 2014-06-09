@@ -42,7 +42,7 @@ app.all('*', function (req, res, next) {
     if (index > -1) {
         res.header(
             "Access-Control-Allow-Origin", 
-            config.corsDomains[index]
+            "*" 
         );
         res.header(
             "Access-Control-Allow-Headers", 
