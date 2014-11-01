@@ -1,6 +1,6 @@
 /**
- * Power meter app. An express frontend to reading a power meter with a 
- * flashing led using a photo resistive sensor on an Arduino Uno board. 
+ * Power meter app. An express frontend to reading a power meter with a
+ * flashing led using a photo resistive sensor on an Arduino Uno board.
  *
  * This is most of all a toy experiment to get me up to speed on some of
  * the latest web technologis.
@@ -11,13 +11,13 @@
  * @copyright Thommas Malt <thomas@malt.no>
  */
 
-var power   = require('./lib/power'), 
-    config  = require('./config');
-    logger  = require('winston'), 
-    express = require('express'),
-    u       = require('underscore'),
-    events  = require('events'),
-    path    = require('path');
+var power   = require('./lib/power');
+var config  = require('./config');
+var logger  = require('winston');
+var express = require('express');
+// var u = require('underscore');
+// var events = require('events');
+// var path = require('path');
 
 logger.remove(logger.transports.Console);
 logger.add(logger.transports.Console, {
@@ -33,7 +33,11 @@ app.disable('x-powered-by');
 app.use(express.logger());
 app.use(express.bodyParser());
 
-// Code to implement rudimentary CORS support.
+/**
+ * Code to implement rudimentary CORS support.
+ *
+ * All requests are parsed through the cors validation.
+ */
 app.all('*', function (req, res, next) {
     var origin = req.header('Origin');
     var index  = config.corsDomains.indexOf(origin);
