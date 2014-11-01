@@ -23,10 +23,10 @@ var power      = require('./lib/power'),
     config     = require('./config'),
     logger     = require('winston'),
     express    = require('express'),
-    u          = require('underscore'),
-    events     = require('events'),
-    VitalSigns = require('vitalsigns'),
-    path       = require('path');
+    // u          = require('underscore'),
+    // events     = require('events'),
+    VitalSigns = require('vitalsigns');
+    //path       = require('path');
 
 logger.remove(logger.transports.Console);
 logger.add(logger.transports.Console, {
