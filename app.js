@@ -1,8 +1,10 @@
 /*
- * Power meter app. An express frontend to reading a power meter with a 
+ * Power meter api server.
+ *
+ * An express frontend to reading a power meter with a
  * flashing led using a photo resistive sensor on an Arduino Uno board. 
  *
- * This is most of all a toy experiment to get me up to speed on some of
+ * This is most of all a toy experiment to keep me up to speed on some of
  * the latest web technologies.
  *
  * @author Thomas Malt <thomas@malt.no>
