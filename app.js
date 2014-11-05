@@ -43,19 +43,12 @@
 
 var power      = require('./lib/power'),
     config     = require('./config'),
-    logger     = require('winston'),
+    logger     = require('morgan'),
     express    = require('express'),
-    // u          = require('underscore'),
-    // events     = require('events'),
+    bodyParser = require('body-parser'),
     VitalSigns = require('vitalsigns');
-    //path       = require('path');
 
-logger.remove(logger.transports.Console);
-logger.add(logger.transports.Console, {
-    colorize:  true,
-    timestamp: true
-});
-
+// Configuring vitalsigns to have a statistics service running.
 var vitals = new VitalSigns();
 vitals.monitor('cpu');
 vitals.monitor('mem', {units: 'MB'});
@@ -64,21 +57,25 @@ vitals.monitor('tick');
 var ctrl = power.controller;
 var app  = express();
 
+app.use(logger('combined'));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
 app.disable('x-powered-by');
-app.use(express.logger());
-app.use(express.bodyParser());
+
+var router = express.Router();
 
 /**
  * Code to implement rudimentary CORS support.
  *
  * All requests are parsed through the cors validation.
  */
-app.all('*', function (req, res, next) {
+router.all('*', function (req, res, next) {
     "use strict";
     var origin = req.header('Origin');
     var index  = config.corsDomains.indexOf(origin);
 
-    logger.info("Got origin: " + origin);
+    console.log("Got origin: " + origin);
 
     if (index > -1) {
         res.header(
@@ -95,13 +92,21 @@ app.all('*', function (req, res, next) {
     next();
 });
 
-app.get('/power/health', vitals.express);
 
-app.get('/power/watts/:interval?', function (req, res) {
+/**
+ * Health statistics web-service. returns the result from vitals express.
+ */
+router.get('/health', vitals.express);
+
+
+/**
+ * Returns the watts for a given interval, default is 10.
+ */
+router.get('/watts/:interval?', function (req, res) {
     if (req.params.interval === undefined || req.params.interval.match(/[0-9]+/)) {
         var interval = parseInt(req.params.interval, 10) || 5;
         ctrl.watts.get(interval).then(function (body) {
-            logger.info("Got body returned as promised: ", body.length);
+            console.log("Got body returned as promised: ", body.length);
             res.setHeader('Cache-Control', 'public, max-age=1');
             res.setHeader('Content-Type', 'application/json');
             res.setHeader('Content-Length', body.length);
@@ -109,7 +114,7 @@ app.get('/power/watts/:interval?', function (req, res) {
         });
     } else if (req.params.interval.match(/^hour$/)) {
         ctrl.watts.hour.get(req.params.type).then(function (body) {
-            logger.info("Got body returned as promised");
+            console.log("Got body returned as promised");
             res.setHeader('Cache-Control', 'public, max-age=4');
             res.setHeader('Content-Type', 'application/json');
             res.setHeader('Content-Length', body.length);
@@ -118,20 +123,25 @@ app.get('/power/watts/:interval?', function (req, res) {
     }
 });
 
-
-app.get('/power/kwh/:type/:count?', function (req, res) {
+/**
+ * Main handler for all the kwh routines.
+ */
+router.get('/kwh/:type/:count?', function (req, res) {
     // req.params.resolution
     var maxage = {
         "today": 60,
         "hour":  5 * 60,
-        "day":   10 * 60
+        "day":   10 * 60,
+        "week":  10 * 60,
+        "month": 10 * 60,
+        "year":  10 * 60
     };
 
     var type  = req.params.type;
     var count = req.params.count || 1;
 
     ctrl.kwh.handler(type, count).then(function (body) {
-        logger.info("Got body returned as promised: ", body.length);
+        console.log("Got body returned as promised: ", body.length);
         res.setHeader('Cache-Control', 'public, max-age=' + maxage[type]);
         res.setHeader('Content-Type', 'application/json');
         res.setHeader('Content-Length', body.length);
@@ -139,9 +149,9 @@ app.get('/power/kwh/:type/:count?', function (req, res) {
     });
 });
 
-app.put('/power/meter/total', function (req, res) {
-    logger.info("Got call to put /meter/total jj: ", req.body);
-    logger.info(req.body);
+router.put('/meter/total', function (req, res) {
+    console.log("Got call to put /meter/total jj: ", req.body);
+    console.log(req.body);
     ctrl.meter.total.put(req.body.value).then(function (body) {
         res.setHeader('Content-Type', 'application/json');
         res.setHeader('Content-Length', body.length);
@@ -150,8 +160,8 @@ app.put('/power/meter/total', function (req, res) {
 });
 
 /*jslint unparam: true */
-app.get('/power/meter/total', function (req, res) {
-    logger.info("Got get request to /meter/total");
+router.get('/meter/total', function (req, res) {
+    console.log("Got get request to /meter/total");
     res.setHeader('Cache-Control', 'public, max-age=6');
     ctrl.meter.total.get().then(function (body) {
         res.setHeader('Content-Type', 'application/json');
@@ -160,11 +170,15 @@ app.get('/power/meter/total', function (req, res) {
     });
 });
 /*jslint unparam: false */
+router.get('/test', function (req, res) {
+    res.json({ message: 'ok now this works'});
+});
 
+app.use('/power', router);
 app.listen(config.server.port || 3000);
 
-logger.info("HTTP listening on port " + config.server.port);
-logger.info("TZ: ", process.env.TZ);
-logger.info("Running from: ", process.cwd());
-logger.info("args: ", process.argv);
+console.log("HTTP listening on port " + config.server.port);
+console.log("TZ: ", process.env.TZ);
+console.log("Running from: ", process.cwd());
+console.log("args: ", process.argv);
 
