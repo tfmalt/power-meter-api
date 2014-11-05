@@ -114,7 +114,7 @@ router.get('/watts/:interval?', function (req, res) {
             res.end(body);
         });
     } else if (req.params.interval.match(/^hour$/)) {
-        ctrl.watts.hour.get(req.params.type).then(function (body) {
+        ctrl.watts.hour.get().then(function (body) {
             res.setHeader('Cache-Control', 'public, max-age=4');
             res.setHeader('Content-Type', 'application/json');
             res.setHeader('Content-Length', body.length);
