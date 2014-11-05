@@ -1,19 +1,21 @@
 {
   "name": "power-meter-api",
-  "version": "0.4.0",
+  "version": "0.5.1",
   "author": "Thomas Malt",
   "description": "Reading power meter by connecting to an arduino board",
   "private": true,
   "dependencies": {
-    "express": "3.x",
+    "body-parser": "^1.9.2",
+    "cookie-parser": "^1.3.3",
+    "cookie-session": "^1.0.2",
+    "express": "^4.10.1",
+    "forever": ">= 0.10.0",
     "jade": ">= 0.28.1",
-    "then-redis": ">= 0.3.0",
-    "winston": ">= 0.7.2",
+    "morgan": "^1.4.1",
     "q": ">= 1.0.0",
+    "then-redis": ">= 0.3.0",
     "underscore": ">= 1.4.4",
-    "vitalsigns": ">= 0.2.2",
-    "restify": "~2.7.0",
-    "forever": ">= 0.10.0"
+    "vitalsigns": ">= 0.2.2"
   },
   "devDependencies": {
     "mocha": ">= 1.8.1",
