@@ -50,9 +50,9 @@ var power      = require('./lib/power'),
 
 // Configuring vitalsigns to have a statistics service running.
 var vitals = new VitalSigns();
-vitals.monitor('cpu');
+vitals.monitor('cpu', null);
 vitals.monitor('mem', {units: 'MB'});
-vitals.monitor('tick');
+vitals.monitor('tick', null);
 
 var ctrl = power.controller;
 var app  = express();
@@ -74,8 +74,6 @@ router.all('*', function (req, res, next) {
     "use strict";
     var origin = req.header('Origin');
     var index  = config.corsDomains.indexOf(origin);
-
-    console.log("Got origin: " + origin);
 
     if (index > -1) {
         res.header(
@@ -101,12 +99,15 @@ router.get('/health', vitals.express);
 
 /**
  * Returns the watts for a given interval, default is 10.
+ * Syntax:
+ *   /watts/:interval
+ *   /watts/10 - average watt consumption during 10 seconds
+ *   /watts/hour - list of average watts per minute over an hour.
  */
 router.get('/watts/:interval?', function (req, res) {
     if (req.params.interval === undefined || req.params.interval.match(/[0-9]+/)) {
         var interval = parseInt(req.params.interval, 10) || 5;
         ctrl.watts.get(interval).then(function (body) {
-            console.log("Got body returned as promised: ", body.length);
             res.setHeader('Cache-Control', 'public, max-age=1');
             res.setHeader('Content-Type', 'application/json');
             res.setHeader('Content-Length', body.length);
@@ -114,12 +115,14 @@ router.get('/watts/:interval?', function (req, res) {
         });
     } else if (req.params.interval.match(/^hour$/)) {
         ctrl.watts.hour.get(req.params.type).then(function (body) {
-            console.log("Got body returned as promised");
             res.setHeader('Cache-Control', 'public, max-age=4');
             res.setHeader('Content-Type', 'application/json');
             res.setHeader('Content-Length', body.length);
             res.end(body);
         });
+    } else {
+        res.status(400);
+        res.json({error: 'Bad Request'});
     }
 });
 
@@ -140,8 +143,10 @@ router.get('/kwh/:type/:count?', function (req, res) {
     var type  = req.params.type;
     var count = req.params.count || 1;
 
+    if (! maxage.hasOwnProperty(type)) {
+        throw new Error('URI called with unsupported type');
+    }
     ctrl.kwh.handler(type, count).then(function (body) {
-        console.log("Got body returned as promised: ", body.length);
         res.setHeader('Cache-Control', 'public, max-age=' + maxage[type]);
         res.setHeader('Content-Type', 'application/json');
         res.setHeader('Content-Length', body.length);
@@ -150,8 +155,6 @@ router.get('/kwh/:type/:count?', function (req, res) {
 });
 
 router.put('/meter/total', function (req, res) {
-    console.log("Got call to put /meter/total jj: ", req.body);
-    console.log(req.body);
     ctrl.meter.total.put(req.body.value).then(function (body) {
         res.setHeader('Content-Type', 'application/json');
         res.setHeader('Content-Length', body.length);
@@ -161,7 +164,6 @@ router.put('/meter/total', function (req, res) {
 
 /*jslint unparam: true */
 router.get('/meter/total', function (req, res) {
-    console.log("Got get request to /meter/total");
     res.setHeader('Cache-Control', 'public, max-age=6');
     ctrl.meter.total.get().then(function (body) {
         res.setHeader('Content-Type', 'application/json');
@@ -175,6 +177,22 @@ router.get('/test', function (req, res) {
 });
 
 app.use('/power', router);
+
+/**
+ * error handler
+ */
+app.use(function(err, req, res, next) {
+    "use strict";
+    if (!err) return next();
+    console.log("got error: ", err);
+    res.status(400);
+    res.json({
+        error: 'Bad Request',
+        message: err
+    });
+    res.end();
+});
+
 app.listen(config.server.port || 3000);
 
 console.log("HTTP listening on port " + config.server.port);
