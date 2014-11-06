@@ -64,6 +64,7 @@ app.use(bodyParser.json());
 app.disable('x-powered-by');
 
 var router = express.Router();
+var google = express.Router();
 
 /**
  * Code to implement rudimentary CORS support.
@@ -176,8 +177,14 @@ router.get('/test', function (req, res) {
     res.json({ message: 'ok now this works'});
 });
 
-app.use('/power', router);
+google.get('/google8f7fa95b45f4eba4.html', function (req, res) {
+    "use strict";
+    res.setHeader('Content-Type', 'text/plain');
+    res.send("google-site-verification: google8f7fa95b45f4eba4.html");
+});
 
+app.use('/power', router);
+app.use('/', google);
 /**
  * error handler
  */
