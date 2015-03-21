@@ -1,6 +1,6 @@
 {
   "name": "power-meter-api",
-  "version": "0.5.1",
+  "version": "1.0.0",
   "author": "Thomas Malt",
   "description": "Reading power meter by connecting to an arduino board",
   "private": true,
@@ -18,11 +18,12 @@
     "vitalsigns": ">= 0.2.2"
   },
   "devDependencies": {
-    "mocha": ">= 1.8.1",
-    "chai": ">= 1.5.0",
-    "grunt-mocha-test": ">= 0.7.0",
     "blanket": ">= 1.1.5",
-    "grunt": ">= 0.4.0"
+    "chai": "^1.5.0",
+    "grunt": ">= 0.4.0",
+    "grunt-mocha-test": ">= 0.7.0",
+    "istanbul": "^0.3.8",
+    "mocha": "^1.8.1"
   },
   "engines": {
     "node": ">= 0.10.24",

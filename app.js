@@ -12,7 +12,7 @@
  *
  * The MIT License (MIT)
  *
- * Copyright (c) 2013-2014 Thomas Malt <thomas@malt.no>
+ * Copyright (c) 2013-2015 Thomas Malt <thomas@malt.no>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -172,6 +172,8 @@ router.get('/meter/total', function (req, res) {
         res.end(body);
     });
 });
+
+
 /*jslint unparam: false */
 router.get('/test', function (req, res) {
     res.json({ message: 'ok now this works'});
@@ -185,6 +187,8 @@ google.get('/google8f7fa95b45f4eba4.html', function (req, res) {
 
 app.use('/power', router);
 app.use('/', google);
+
+
 /**
  * error handler
  */
