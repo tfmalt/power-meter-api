@@ -91,15 +91,17 @@ describe('Power Meter API Controller', function() {
         var now = new Date();
         var hourTime;
         var dayTime;
+        var weekTime;
 
         beforeEach(function(done) {
-            hourTime = ctrl.normalizeDate(new Date, "hour");
-            dayTime  = ctrl.normalizeDate(new Date, "day");
+            hourTime = ctrl._normalizeDate(new Date, "hour");
+            dayTime  = ctrl._normalizeDate(new Date, "day");
+            weekTime = ctrl._normalizeDate(new Date, "week");
 
             for(var i = 0; i <= 30; i++) {
                 ctrl.write.lpush(
                     "day",
-                    "{\"total\": 300, \"timestamp\": " + (now.getTime() - (i*1000)) + "}"
+                    "{\"total\": 300, \"timestamp\": " + (now.getTime() - (i*60*1000)) + "}"
                 );
                 ctrl.write.set("hour:" + hourTime.toJSON(), JSON.stringify({
                     timestamp: hourTime.getTime(),
@@ -115,8 +117,16 @@ describe('Power Meter API Controller', function() {
                     kwh: 80.000
                 }));
 
-                dayTime  = new Date(dayTime.getTime() - 24*60*60*1000);
+                ctrl.write.set("week:" + weekTime.toJSON(), JSON.stringify({
+                    timestamp: weekTime.getTime(),
+                    date: weekTime.toJSON(),
+                    total: 80000*30,
+                    kwh: 80.000*30
+                }));
+
+                dayTime  = new Date(dayTime.getTime()  - 24*60*60*1000);
                 hourTime = new Date(hourTime.getTime() - 60*60*1000);
+                weekTime = new Date(weekTime.getTime() - 7*24*60*60*1000);
             }
 
             ctrl.write.lpush(
@@ -128,9 +138,9 @@ describe('Power Meter API Controller', function() {
 
         it('should return correct json for watt today', function() {
             return ctrl.kwh.handler("today").should.eventually.deep.equal({
-                date: (new Date(hourTime.getTime() + 12*60*60*1000)).toJSON(),
+                date: (new Date(hourTime.getTime() + (31 - now.getHours())*60*60*1000)).toJSON(),
                 description: "kWh used today from midnight to now.",
-                kwh: parseFloat(((now.getHours() -1) * 0.0517).toFixed(2)),
+                kwh: 0.93,
                 version: pj.version
             });
         });
@@ -169,5 +179,17 @@ describe('Power Meter API Controller', function() {
             });
         });
 
+        it('should return correct json for 1 week', function() {
+            return ctrl.kwh.handler("week", 1).should.eventually.deep.equal({
+                description: "kWh consumed per week for 1 weeks",
+                items: [{
+                    date: (new Date(weekTime.getTime() + 31*7*24*60*60*1000)).toJSON(),
+                    kwh: 2400,
+                    timestamp: (new Date(weekTime.getTime() + 31*7*24*60*60*1000)).getTime(),
+                    total: 2400000
+                }],
+                version: pj.version
+            });
+        });
     });
 });
