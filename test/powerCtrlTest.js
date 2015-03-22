@@ -192,4 +192,25 @@ describe('Power Meter API Controller', function() {
             });
         });
     });
+
+    describe('meter.total.get', function() {
+        var now = new Date();
+        beforeEach(function() {
+            ctrl.write.set("meterTotal", JSON.stringify({
+                timestamp: now.toJSON(),
+                value: 10000
+            }));
+            ctrl.write.set("meterTotalDelta", 10.001);
+        });
+
+        it('should return json with current power meter reading', function() {
+            return ctrl.meter.total.get().should.eventually.deep.equal({
+                description: "Current Power meter total registered on server",
+                version: pj.version,
+                delta: 10.001,
+                value: 10000,
+                timestamp: now.toJSON()
+            });
+        });
+    });
 });
