@@ -193,7 +193,7 @@ describe('Power Meter API Controller', function() {
         });
     });
 
-    describe('meter.total.get', function() {
+    describe('meter.total', function() {
         var now = new Date();
         beforeEach(function() {
             ctrl.write.set("meterTotal", JSON.stringify({
@@ -203,13 +203,22 @@ describe('Power Meter API Controller', function() {
             ctrl.write.set("meterTotalDelta", 10.001);
         });
 
-        it('should return json with current power meter reading', function() {
-            return ctrl.meter.total.get().should.eventually.deep.equal({
-                description: "Current Power meter total registered on server",
-                version: pj.version,
-                delta: 10.001,
-                value: 10000,
-                timestamp: now.toJSON()
+        describe('get', function() {
+            it('should return json with current power meter reading', function () {
+                return ctrl.meter.total.get().should.eventually.deep.equal({
+                    description: "Current Power meter total registered on server",
+                    version: pj.version,
+                    delta: 10.001,
+                    value: 10000,
+                    timestamp: now.toJSON()
+                });
+            });
+        });
+
+        describe('put', function() {
+            it('should set the meter correctly and return json', function() {
+                return ctrl.meter.total.put(20000).should.eventually.have.property("value", 20000);
+
             });
         });
     });
