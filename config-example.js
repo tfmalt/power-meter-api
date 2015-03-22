@@ -5,12 +5,12 @@ exports.server = {
 
 exports.redis = {
     read: {
-        host: "hostname",
+        host: "localhost",
         port: 6379,
         password: null
     },
     write: {
-        host: "hostname",
+        host: "lolcahost",
         port: 6379,
         password: null
     }
