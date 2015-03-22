@@ -1,0 +1,120 @@
+/**
+ * Created by tm on 21/03/15.
+ *
+ * @author tm
+ * @copyright 2015 (c) tm
+ */
+
+var chai    = require('chai'),
+    expect  = chai.expect,
+    promise = require('chai-as-promised'),
+    power   = require('../lib/power'),
+    redis   = require('fakeredis'),
+    pj      = require('../package.json'),
+    ctrl    = power.controller;
+
+chai.should();
+chai.use(promise);
+
+describe('Power Meter API Controller', function() {
+    "use strict";
+    beforeEach(function() {
+        ctrl.read  = redis.createClient();
+        ctrl.write = ctrl.read;
+    });
+
+    it('should have a valid version', function() {
+        ctrl.version.should.be.a('string');
+    });
+
+    it('should have have a valid read redis client', function() {
+        ctrl.read.should.exist;
+        ctrl.read.should.be.an.instanceOf(redis.RedisClient);
+    });
+    describe('watts.hour.get', function() {
+        beforeEach(function(done) {
+            for(var i = 0; i <= 3600; i++) {
+                ctrl.write.rpush(
+                    "hour",
+                    "{\"pulseCount\": 17, \"timestamp\": " + (i*1000) + "}"
+                );
+            }
+            done();
+        });
+
+        it('watts hour get should return valid json', function() {
+            return expect(ctrl.watts.hour.get()).to.eventually.contain.keys(
+                'description',
+                'version',
+                'items',
+                'container');
+        });
+    });
+
+    describe('watts.get', function() {
+        beforeEach(function(done) {
+            for(var i = 0; i <= 5; i++) {
+                ctrl.write.rpush(
+                    "hour",
+                    "{\"pulseCount\": 17, \"timestamp\": " + (i*1000) + "}"
+                );
+            }
+            done();
+        });
+
+        it('should be rejected when passed no arguments', function () {
+            return ctrl.watts.get().should.eventually.deep.equal({
+                average: 17,
+                description: "Current Usage in Watts",
+                interval: 1,
+                kWhs: 0.0017,
+                sum: 17,
+                version: pj.version,
+                watt: 6119
+            });
+        });
+
+        it('should return correct json when called correctly', function() {
+            return ctrl.watts.get(5).should.eventually.deep.equal({
+                average: 17,
+                description: "Current Usage in Watts",
+                interval: 5,
+                kWhs: 0.0017,
+                sum: 85,
+                version: pj.version,
+                watt: 6119
+            });
+        });
+    });
+
+    describe('kwh.handler', function() {
+        var now = new Date();
+        beforeEach(function(done) {
+            for(var i = 0; i <= 20; i++) {
+                ctrl.write.lpush(
+                    "day",
+                    "{\"total\": 300, \"timestamp\": " + (now.getTime() - (i*1000)) + "}"
+                );
+            }
+            ctrl.write.lpush(
+                "day",
+                "{\"total\": 300, \"timestamp\": " + (now.getTime() - 24*60*60*1000) + "}"
+            );
+
+            done();
+        });
+
+        it('should throw TypeError because count is missing', function() {
+            ctrl.kwh.handler.bind(ctrl, "today").should.throw(TypeError, /second argument/);
+        });
+
+        it('should throw TypeError on incorrect type.', function() {
+            ctrl.kwh.handler.bind(ctrl, "popeye").should.throw(TypeError, /first argument/);
+        });
+
+        it('should do something', function() {
+            return ctrl.kwh.handler("hour", 5).should.eventually.equal({});
+        });
+
+    });
+});
