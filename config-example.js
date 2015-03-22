@@ -10,7 +10,7 @@ exports.redis = {
         password: null
     },
     write: {
-        host: "lolcahost",
+        host: "localhost",
         port: 6379,
         password: null
     }
