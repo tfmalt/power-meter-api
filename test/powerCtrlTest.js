@@ -89,31 +89,84 @@ describe('Power Meter API Controller', function() {
 
     describe('kwh.handler', function() {
         var now = new Date();
+        var hourTime;
+        var dayTime;
+
         beforeEach(function(done) {
-            for(var i = 0; i <= 20; i++) {
+            hourTime = ctrl.normalizeDate(new Date, "hour");
+            dayTime  = ctrl.normalizeDate(new Date, "day");
+
+            for(var i = 0; i <= 30; i++) {
                 ctrl.write.lpush(
                     "day",
                     "{\"total\": 300, \"timestamp\": " + (now.getTime() - (i*1000)) + "}"
                 );
+                ctrl.write.set("hour:" + hourTime.toJSON(), JSON.stringify({
+                    timestamp: hourTime.getTime(),
+                    datestr: hourTime.toJSON(),
+                    total: 12345,
+                    kwh: 1.2345
+                }));
+
+                ctrl.write.set("day:" + dayTime.toJSON(), JSON.stringify({
+                    timestamp: dayTime.getTime(),
+                    timestr: dayTime.toJSON(),
+                    total: 80000,
+                    kwh: 80.000
+                }));
+
+                dayTime  = new Date(dayTime.getTime() - 24*60*60*1000);
+                hourTime = new Date(hourTime.getTime() - 60*60*1000);
             }
+
             ctrl.write.lpush(
                 "day",
                 "{\"total\": 300, \"timestamp\": " + (now.getTime() - 24*60*60*1000) + "}"
             );
-
             done();
         });
 
-        it('should throw TypeError because count is missing', function() {
-            ctrl.kwh.handler.bind(ctrl, "today").should.throw(TypeError, /second argument/);
+        it('should return correct json for watt today', function() {
+            return ctrl.kwh.handler("today").should.eventually.deep.equal({
+                date: (new Date(hourTime.getTime() + 12*60*60*1000)).toJSON(),
+                description: "kWh used today from midnight to now.",
+                kwh: parseFloat(((now.getHours() -1) * 0.0517).toFixed(2)),
+                version: pj.version
+            });
         });
 
         it('should throw TypeError on incorrect type.', function() {
             ctrl.kwh.handler.bind(ctrl, "popeye").should.throw(TypeError, /first argument/);
         });
 
-        it('should do something', function() {
-            return ctrl.kwh.handler("hour", 5).should.eventually.equal({});
+        it('should throw TypeError when missing count', function() {
+            ctrl.kwh.handler.bind(ctrl, "hour").should.throw(TypeError, /second argument/);
+        });
+
+        it('should return correct json for 1 hour', function() {
+            return ctrl.kwh.handler("hour", 1).should.eventually.deep.equal({
+                description: "kWh consumed per hour for 1 hours",
+                items: [{
+                    date: (new Date(hourTime.getTime() + 31*60*60*1000)).toJSON(),
+                    kwh: 1.2345,
+                    timestamp: (new Date(hourTime.getTime() + 31*60*60*1000)).getTime(),
+                    total: 12345
+                }],
+                version: pj.version
+            });
+        });
+
+        it('should return correct json for 1 day', function() {
+            return ctrl.kwh.handler("day", 1).should.eventually.deep.equal({
+                description: "kWh consumed per day for 1 days",
+                items: [{
+                    date: (new Date(dayTime.getTime() + 31*24*60*60*1000)).toJSON(),
+                    kwh: 80,
+                    timestamp: (new Date(dayTime.getTime() + 31*24*60*60*1000)).getTime(),
+                    total: 80000
+                }],
+                version: pj.version
+            });
         });
 
     });
