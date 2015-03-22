@@ -5,7 +5,6 @@ module.exports = function () {
             "config.js",
             "config-dev.js",
             "package.json",
-            "app.js",
             "lib/*.js"
         ],
 
