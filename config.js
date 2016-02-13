@@ -1,1 +1,1 @@
-config-example.js
+config-prod.js
