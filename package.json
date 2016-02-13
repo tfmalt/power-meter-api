@@ -34,5 +34,8 @@
   },
   "scripts": {
     "test": "POWER_ENV=test istanbul cover _mocha -- -R spec"
+  },
+  "bin": {
+    "powerapi": "./server.js"
   }
 }
