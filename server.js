@@ -98,12 +98,12 @@ router.get('/watts/:interval?', function (req, res) {
 /**
  * Main handler for all the kwh routines.
  *
- * GET /power/:type/:count
- * GET /power/today
- * GET /power/day
- * GET /power/week
- * GET /power/month - not implemented yet
- * GET /power/year - not implemented yet
+ * GET /power/kwh/:type/:count
+ * GET /power/kwh/today
+ * GET /power/kwh/day
+ * GET /power/kwh/week
+ * GET /power/kwh/month - not implemented yet
+ * GET /power/kwh/year - not implemented yet
  */
 router.get('/kwh/:type/:count?', function (req, res) {
     var maxage = {
