@@ -184,7 +184,7 @@ app.use(function(err, req, res, next) {
     res.end();
 });
 
-app.listen(config.server.port || 3000);
+app.listen(config.server.port);
 
 console.log("HTTP listening on port " + config.server.port);
 console.log("TZ: ", process.env.TZ);
