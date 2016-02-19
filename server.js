@@ -27,8 +27,14 @@ vitals.monitor('tick', null);
 
 var ctrl = power.controller;
 var app  = express();
+var logMode = "combined";
 
-app.use(logger('combined'));
+if (config.environment === "development") {
+    logMode = "dev";
+}
+
+
+app.use(logger(logMode));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
@@ -72,9 +78,9 @@ router.get('/health', vitals.express);
  * Returns the watts for a given interval, default is 5.
  *
  * Syntax:
- *   /power/watts/:interval
- *   /power/watts/10 - average watt consumption during 10 seconds
- *   /power/watts/hour - list of average watts per minute over an hour.
+ *   GET /power/watts/:interval
+ *   GET /power/watts/10 - average watt consumption during 10 seconds
+ *   GET /power/watts/hour - list of average watts per minute over an hour.
  */
 router.get('/watts/:interval?', function (req, res) {
     if (req.params.interval === undefined || req.params.interval.match(/[0-9]+/)) {
@@ -98,12 +104,13 @@ router.get('/watts/:interval?', function (req, res) {
 /**
  * Main handler for all the kwh routines.
  *
- * GET /power/kwh/:type/:count
- * GET /power/kwh/today
- * GET /power/kwh/day
- * GET /power/kwh/week
- * GET /power/kwh/month - not implemented yet
- * GET /power/kwh/year - not implemented yet
+ * Syntax:
+ *   GET /power/kwh/:type/:count
+ *   GET /power/kwh/today
+ *   GET /power/kwh/day
+ *   GET /power/kwh/week
+ *   GET /power/kwh/month - not implemented yet
+ *   GET /power/kwh/year - not implemented yet
  */
 router.get('/kwh/:type/:count?', function (req, res) {
     var maxage = {
