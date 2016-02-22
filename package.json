@@ -39,6 +39,6 @@
     "start": "node ./server.js"
   },
   "bin": {
-    "powerapi": "./server.js"
+    "powermeter": "./powermeter.js"
   }
 }
