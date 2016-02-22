@@ -139,9 +139,17 @@ router.get('/kwh/:type/:count?', function (req, res) {
  * PUT /power/meter/total
  */
 router.put('/meter/total', function (req, res) {
-    ctrl.meter.total.put(req.body.value).done(function (body) {
-        res.json(body);
-    });
+    ctrl.meter.total.put(req.body.value)
+        .catch(function (error) {
+            res.status(400);
+            res.json({
+                'error': error.name,
+                'message': error.message
+            });
+        })
+        .done(function (body) {
+            res.json(body);
+        });
 });
 
 /**
