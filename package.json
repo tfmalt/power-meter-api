@@ -12,11 +12,13 @@
     "cookie-session": "^1.0.2",
     "express": "^4.10.1",
     "jade": "^0.28.1",
+    "json-web-token": "^1.6.3",
     "morgan": "^1.6.1",
     "q": "^1.4.1",
     "redis": "^2.4.2",
     "underscore": "^1.8.3",
-    "vitalsigns": "^0.4.3"
+    "vitalsigns": "^0.4.3",
+    "yargs": "^4.1.0"
   },
   "devDependencies": {
     "blanket": "^1.2.1",
