@@ -101,6 +101,19 @@ router.get('/watts/:interval?', function (req, res) {
     }
 });
 
+
+router.get('/kwh/date/:year?/:month?/:date?', function (req, res) {
+    console.log('/kwh/date');
+    console.log("DEBUG request headers: ", req.headers);
+    console.log("DEBUG params: ", req.params);
+
+    ctrl.kwh.byDate(req.params)
+        .done(function (data) {
+            res.setHeader('Cache-Control', 'public, max-age=3600');
+            res.json(data);
+        });
+});
+
 /**
  * Main handler for all the kwh routines.
  *
@@ -113,6 +126,9 @@ router.get('/watts/:interval?', function (req, res) {
  *   GET /power/kwh/year - not implemented yet
  */
 router.get('/kwh/:type/:count?', function (req, res) {
+    console.log("DEBUG request headers:");
+    console.log(req.headers);
+
     var maxage = {
         "today": 60,
         "hour":  5 * 60,
@@ -123,16 +139,29 @@ router.get('/kwh/:type/:count?', function (req, res) {
     };
 
     var type  = req.params.type;
-    var count = req.params.count || 1;
+    var count = req.params.count;
 
     if (! maxage.hasOwnProperty(type)) {
-        throw new Error('URI called with unsupported type');
+        throw new TypeError('URI called with unsupported type');
     }
 
-    ctrl.kwh.handler(type, count).done(function (body) {
-        res.setHeader('Cache-Control', 'public, max-age=' + maxage[type]);
-        res.json(body);
-    });
+    if (count === undefined) {
+        count = 1;
+    }
+    if (count !== "this") {
+        count = parseInt(count);
+    }
+
+    console.log("count: ", count);
+    if (!Number.isInteger(count) && count !== "this") {
+        throw new TypeError("last param must be an integer or a keyword. got: " + count);
+    }
+
+    ctrl.kwh.handler(type, count)
+        .done(function (body) {
+            res.setHeader('Cache-Control', 'public, max-age=' + maxage[type]);
+            res.json(body);
+        });
 });
 
 /**
@@ -201,10 +230,10 @@ app.use(function(err, req, res, next) {
 
 app.listen(config.server.port);
 
-console.log("HTTP listening on port " + config.server.port);
-console.log("TZ: ", process.env.TZ);
-console.log("Running from: ", process.cwd());
-console.log("args: ", process.argv);
+console.log("HTTP  listening on port " + config.server.port);
+console.log("TZ:   ", process.env.TZ);
+console.log("CWD:  ", process.cwd());
+console.log("ARGS: ", process.argv);
 
 /*
  * The MIT License (MIT)
