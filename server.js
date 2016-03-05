@@ -53,6 +53,8 @@ router.all('*', function (req, res, next) {
     var origin = req.header('Origin');
     var index  = config.corsDomains.indexOf(origin);
 
+    console.log("Doing CORS check");
+
     if (index > -1) {
         res.header(
             "Access-Control-Allow-Origin",
