@@ -50,24 +50,23 @@ var google = express.Router();
  */
 router.all('*', function (req, res, next) {
     "use strict";
-    var origin = req.header('Origin');
-    var index  = config.corsDomains.indexOf(origin);
+    // var origin = req.header('Origin');
+    // var index  = config.corsDomains.indexOf(origin);
 
     console.log("DEBUG: Doing CORS check");
     console.log(req.headers);
 
-    if (index > -1) {
-        res.header(
-            "Access-Control-Allow-Origin",
-            "*"
-        );
-        res.header(
-            "Access-Control-Allow-Headers",
-            "X-Requested-With, Content-Type"
-        );
-        res.header("Access-Control-Max-Age", 600);
-        res.header("Access-Control-Allow-Methods",  "GET, PUT, OPTIONS");
-    }
+    res.header(
+        "Access-Control-Allow-Origin",
+        "*"
+    );
+    res.header(
+       "Access-Control-Allow-Headers",
+       "X-Requested-With, Content-Type"
+    );
+    res.header("Access-Control-Max-Age", 600);
+    res.header("Access-Control-Allow-Methods",  "GET, PUT, OPTIONS");
+
     next();
 });
 
