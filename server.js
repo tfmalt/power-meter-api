@@ -53,7 +53,8 @@ router.all('*', function (req, res, next) {
     var origin = req.header('Origin');
     var index  = config.corsDomains.indexOf(origin);
 
-    console.log("Doing CORS check");
+    console.log("DEBUG: Doing CORS check");
+    console.log(req.headers);
 
     if (index > -1) {
         res.header(
@@ -106,8 +107,6 @@ router.get('/watts/:interval?', function (req, res) {
 
 router.get('/kwh/date/:year?/:month?/:date?', function (req, res) {
     console.log('/kwh/date');
-    console.log("DEBUG request headers: ", req.headers);
-    console.log("DEBUG params: ", req.params);
 
     ctrl.kwh.byDate(req.params)
         .done(function (data) {
@@ -128,9 +127,6 @@ router.get('/kwh/date/:year?/:month?/:date?', function (req, res) {
  *   GET /power/kwh/year - not implemented yet
  */
 router.get('/kwh/:type/:count?', function (req, res) {
-    console.log("DEBUG request headers:");
-    console.log(req.headers);
-
     var maxage = {
         "today": 60,
         "hour":  5 * 60,
