@@ -119,6 +119,8 @@ router.get('/kwh/date/:year?/:month?/:date?', function (req, res) {
  *
  * Syntax:
  *   GET /power/kwh/:type/:count
+ *   GET /power/kwh/seconds
+ *   GET /power/kwh/hour
  *   GET /power/kwh/today
  *   GET /power/kwh/day
  *   GET /power/kwh/week
@@ -127,6 +129,7 @@ router.get('/kwh/date/:year?/:month?/:date?', function (req, res) {
  */
 router.get('/kwh/:type/:count?', function (req, res) {
     var maxage = {
+        "seconds": 1,
         "today": 60,
         "hour":  5 * 60,
         "day":   10 * 60,
@@ -142,12 +145,8 @@ router.get('/kwh/:type/:count?', function (req, res) {
         throw new TypeError('URI called with unsupported type');
     }
 
-    if (count === undefined) {
-        count = 1;
-    }
-    if (count !== "this") {
-        count = parseInt(count);
-    }
+    if (count === undefined) { count = 1; }
+    if (count !== "this")    { count = parseInt(count); }
 
     console.log("count: ", count);
     if (!Number.isInteger(count) && count !== "this") {
