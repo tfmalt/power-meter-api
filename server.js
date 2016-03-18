@@ -188,6 +188,17 @@ router.get('/meter/total', function (req, res) {
     });
 });
 
+router.get('/usage', function (req, res) {
+    var duration  = req.query.duration || 60;
+    var interval  = req.query.interval || 5;
+
+    console.log("got usage: ", req.query);
+
+    ctrl.usage.get(duration, interval).then(function (data) {
+        res.json(data);
+    });
+
+});
 
 /**
  * GET /power/test
