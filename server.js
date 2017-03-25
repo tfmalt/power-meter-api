@@ -2,7 +2,7 @@
  * Power meter api server.
  *
  * An express frontend to reading a power meter with a
- * flashing led using a photo resistive sensor on an Arduino Uno board. 
+ * flashing led using a photo resistive sensor on an Arduino Uno board.
  *
  * This is most of all a toy experiment to keep me up to speed on some of
  * the latest web technologies.
@@ -11,65 +11,55 @@
  * @copyright Thomas Malt <thomas@malt.no>
  *
  */
+const debug      = require('debug')('power-meter-server');
+const power      = require('./lib/power');
+const config     = require('./config');
+const logger     = require('morgan');
+const express    = require('express');
+const bodyParser = require('body-parser');
+const VitalSigns = require('vitalsigns');
 
-var power      = require('./lib/power'),
-    config     = require('./config'),
-    logger     = require('morgan'),
-    express    = require('express'),
-    bodyParser = require('body-parser'),
-    VitalSigns = require('vitalsigns');
+const redis = require('redis');
 
 // Configuring vitalsigns to have a statistics service running.
-var vitals = new VitalSigns();
+const vitals = new VitalSigns();
+
 vitals.monitor('cpu', null);
 vitals.monitor('mem', {units: 'MB'});
 vitals.monitor('tick', null);
 
-var ctrl = power.controller;
-var app  = express();
-var logMode = "combined";
+const ctrl    = power.controller;
+const app     = express();
+const logmode = (process.env.NODE_ENV === 'development') ? 'dev' : 'combined';
 
-if (config.environment === "development") {
-    logMode = "dev";
-}
-
-
-app.use(logger(logMode));
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(logger(logmode));
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
 app.disable('x-powered-by');
 
-var router = express.Router();
-var google = express.Router();
+const router = express.Router();
+const google = express.Router();
 
 /**
  * Code to implement rudimentary CORS support.
  *
  * All requests are parsed through the cors validation.
  */
-router.all('*', function (req, res, next) {
-    "use strict";
-    // var origin = req.header('Origin');
-    // var index  = config.corsDomains.indexOf(origin);
+router.all('*', (req, res, next) => {
+  // var origin = req.header('Origin');
+  // var index  = config.corsDomains.indexOf(origin);
 
-    console.log("DEBUG: Doing CORS check");
-    console.log(req.headers);
+  debug('Doing CORS check');
+  debug(req.headers);
 
-    res.header(
-        "Access-Control-Allow-Origin",
-        "*"
-    );
-    res.header(
-       "Access-Control-Allow-Headers",
-       "X-Requested-With, Content-Type"
-    );
-    res.header("Access-Control-Max-Age", 600);
-    res.header("Access-Control-Allow-Methods",  "GET, PUT, OPTIONS");
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type');
+  res.header('Access-Control-Max-Age', 600);
+  res.header('Access-Control-Allow-Methods', 'GET, PUT, OPTIONS');
 
-    next();
+  next();
 });
-
 
 /**
  * Health statistics web-service. returns the result from vitals express.
@@ -84,34 +74,32 @@ router.get('/health', vitals.express);
  *   GET /power/watts/10 - average watt consumption during 10 seconds
  *   GET /power/watts/hour - list of average watts per minute over an hour.
  */
-router.get('/watts/:interval?', function (req, res) {
-    if (req.params.interval === undefined || req.params.interval.match(/[0-9]+/)) {
-        var interval = parseInt(req.params.interval, 10) || 5;
+router.get('/watts/:interval?', (req, res) => {
+  if (!req.params.hasOwnProperty('interval') || req.params.interval.match(/[0-9]+/)) {
+    const interval = parseInt(req.params.interval, 10) || 5;
 
-        ctrl.watts.get(interval).done(function(body) {
-            res.setHeader('Cache-Control', 'public, max-age=1');
-            res.json(body);
-        });
-    } else if (req.params.interval.match(/^hour$/)) {
-        ctrl.watts.hour.get().done(function(body) {
-            res.setHeader('Cache-Control', 'public, max-age=4');
-            res.json(body);
-        });
-    } else {
-        res.status(400);
-        res.json({error: 'Bad Request'});
-    }
+    ctrl.watts.get(interval).done((body) => {
+      res.setHeader('Cache-Control', 'public, max-age=1');
+      res.json(body);
+    });
+  } else if (req.params.interval.match(/^hour$/)) {
+    ctrl.watts.hour.get().done((body) => {
+      res.setHeader('Cache-Control', 'public, max-age=4');
+      res.json(body);
+    });
+  } else {
+    res.status(400);
+    res.json({error: 'Bad Request'});
+  }
 });
 
+router.get('/kwh/date/:year?/:month?/:date?', (req, res) => {
+  debug('/kwh/date');
 
-router.get('/kwh/date/:year?/:month?/:date?', function (req, res) {
-    console.log('/kwh/date');
-
-    ctrl.kwh.byDate(req.params)
-        .done(function (data) {
-            res.setHeader('Cache-Control', 'public, max-age=3600');
-            res.json(data);
-        });
+  ctrl.kwh.byDate(req.params).done((data) => {
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    res.json(data);
+  });
 });
 
 /**
@@ -127,125 +115,115 @@ router.get('/kwh/date/:year?/:month?/:date?', function (req, res) {
  *   GET /power/kwh/month - not implemented yet
  *   GET /power/kwh/year - not implemented yet
  */
-router.get('/kwh/:type/:count?', function (req, res) {
-    var maxage = {
-        "seconds": 1,
-        "today": 60,
-        "hour":  5 * 60,
-        "day":   10 * 60,
-        "week":  10 * 60,
-        "month": 10 * 60,
-        "year":  10 * 60
-    };
+router.get('/kwh/:type/:count?', (req, res) => {
+  const maxage = {
+    seconds: 1,
+    today:   60,
+    hour:    5 * 60,
+    day:     10 * 60,
+    week:    10 * 60,
+    month:   10 * 60,
+    year:    10 * 60
+  };
 
-    var type  = req.params.type;
-    var count = req.params.count;
+  const type = req.params.type;
+  const count = req.params.count || 1;
 
-    if (! maxage.hasOwnProperty(type)) {
-        throw new TypeError('URI called with unsupported type');
-    }
+  if (!maxage.hasOwnProperty(type)) {
+    throw new TypeError('URI called with unsupported type');
+  }
 
-    if (count === undefined) { count = 1; }
-    if (count !== "this")    { count = parseInt(count); }
+  if (count !== 'this') count = parseInt(count, 10);
 
-    console.log("count: ", count);
-    if (!Number.isInteger(count) && count !== "this") {
-        throw new TypeError("last param must be an integer or a keyword. got: " + count);
-    }
+  debug('count: ', count);
+  if (!Number.isInteger(count) && count !== 'this') {
+    throw new TypeError('last param must be an integer or a keyword. got: ' + count);
+  }
 
-    ctrl.kwh.handler(type, count)
-        .done(function (body) {
-            res.setHeader('Cache-Control', 'public, max-age=' + maxage[type]);
-            res.json(body);
-        });
+  ctrl.kwh.handler(type, count).done(function (body) {
+    res.setHeader('Cache-Control', 'public, max-age=' + maxage[type]);
+    res.json(body);
+  });
 });
 
 /**
  * PUT /power/meter/total
  */
 router.put('/meter/total', function (req, res) {
-    ctrl.meter.total.put(req.body.value)
-        .catch(function (error) {
-            res.status(400);
-            res.json({
-                'error': error.name,
-                'message': error.message
-            });
-        })
-        .done(function (body) {
-            res.json(body);
-        });
+  ctrl.meter.total.put(req.body.value).catch(function (error) {
+    res.status(400);
+    res.json({error: error.name, message: error.message});
+  }).done(function (body) {
+    res.json(body);
+  });
 });
 
 /**
  * GET /power/meter/total
  */
 router.get('/meter/total', function (req, res) {
-    res.setHeader('Cache-Control', 'public, max-age=6');
+  res.setHeader('Cache-Control', 'public, max-age=6');
 
-    ctrl.meter.total.get().then(function (body) {
-        res.json(body);
-    });
+  ctrl.meter.total.get().then(function (body) {
+    res.json(body);
+  });
 });
 
 router.get('/usage', function (req, res) {
-    var duration  = req.query.duration || 60;
-    var interval  = req.query.interval || 5;
+  const duration = req.query.duration || 60;
+  const interval = req.query.interval || 5;
 
-    console.log("got usage: ", req.query);
+  debug('got usage: ', req.query);
 
-    ctrl.usage.get(duration, interval).then(function (data) {
-        res.json(data);
-    });
-
+  ctrl.usage.get(duration, interval).then(function (data) {
+    res.json(data);
+  });
 });
 
 /**
  * GET /power/test
  */
 router.get('/test', function (req, res) {
-    res.json({ message: 'ok now this works'});
+  res.json({message: 'ok now this works'});
 });
 
 /**
  * Setup to verify site by google.
  */
 google.get('/google8f7fa95b45f4eba4.html', function (req, res) {
-    "use strict";
-    res.setHeader('Content-Type', 'text/plain');
-    res.send("google-site-verification: google8f7fa95b45f4eba4.html");
+  'use strict';
+  res.setHeader('Content-Type', 'text/plain');
+  res.send('google-site-verification: google8f7fa95b45f4eba4.html');
 });
 
 app.use('/power', router);
 app.use('/', google);
 
-
 /**
  * error handler
  */
-app.use(function(err, req, res, next) {
-    "use strict";
-    if (!err) return next();
-    console.log("got error: ", err);
-    res.status(400);
-    res.json({
-        error: 'Bad Request',
-        message: err.message
-    });
-    res.end();
+app.use((err, req, res, next) => {
+  if (!err) return next();
+
+  debug('got error: ', err);
+  res.status(400);
+  res.json({error: 'Bad Request', message: err.message});
+  res.end();
+
+  return false;
 });
 
 app.listen(config.server.port);
 
-console.log("HTTP  listening on port " + config.server.port);
-console.log("TZ:   ", process.env.TZ);
-console.log("CWD:  ", process.cwd());
-console.log("ARGS: ", process.argv);
+debug('HTTP  listening on port ' + config.server.port);
+debug('TZ:   ', process.env.TZ);
+debug('CWD:  ', process.cwd());
+debug('ARGS: ', process.argv);
 
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2013-2016 Thomas Malt <thomas@malt.no>
+ * Copyright (c) 2013-2017 Thomas Malt <thomas@malt.no>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -265,4 +243,3 @@ console.log("ARGS: ", process.argv);
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
-
