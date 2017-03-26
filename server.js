@@ -11,24 +11,43 @@
  * @copyright Thomas Malt <thomas@malt.no>
  *
  */
-const debug      = require('debug')('power-meter-server');
-const power      = require('./lib/power');
+const debug      = require('debug')('power-meter:server');
 const config     = require('./config');
 const logger     = require('morgan');
+const bluebird   = require('bluebird');
 const express    = require('express');
 const bodyParser = require('body-parser');
 const VitalSigns = require('vitalsigns');
-
+const PowerMeterController = require('./lib/power-meter-controller');
 const redis = require('redis');
 
-// Configuring vitalsigns to have a statistics service running.
+bluebird.promisifyAll(redis.RedisClient.prototype);
+bluebird.promisifyAll(redis.Multi.prototype);
+
+config.env            = process.env.NODE_ENV   || 'production';
+config.server.port    = process.env.PORT       || config.server.port;
+config.redis.host     = process.env.REDIS_HOST || config.redis.host;
+config.redis.port     = process.env.REDIS_PORT || config.redis.port;
+config.redis.password = process.env.REDIS_AUTH || config.redis.password;
+
+if (config.redis.password === '') delete config.redis.password;
+
+const redisclient = redis.createClient(config.redis);
+redisclient.on('error', (error) => {
+  debug('got error from redis server:', error.message, error);
+  process.exit(1);
+});
+redisclient.on('ready', () => {
+  debug('redis connection is woring and ready.');
+});
+
+const ctrl = new PowerMeterController(redisclient, config);
 const vitals = new VitalSigns();
 
 vitals.monitor('cpu', null);
 vitals.monitor('mem', {units: 'MB'});
 vitals.monitor('tick', null);
 
-const ctrl    = power.controller;
 const app     = express();
 const logmode = (process.env.NODE_ENV === 'development') ? 'dev' : 'combined';
 
@@ -39,7 +58,6 @@ app.use(bodyParser.json());
 app.disable('x-powered-by');
 
 const router = express.Router();
-const google = express.Router();
 
 /**
  * Code to implement rudimentary CORS support.
@@ -187,17 +205,7 @@ router.get('/test', function (req, res) {
   res.json({message: 'ok now this works'});
 });
 
-/**
- * Setup to verify site by google.
- */
-google.get('/google8f7fa95b45f4eba4.html', function (req, res) {
-  'use strict';
-  res.setHeader('Content-Type', 'text/plain');
-  res.send('google-site-verification: google8f7fa95b45f4eba4.html');
-});
-
 app.use('/power', router);
-app.use('/', google);
 
 /**
  * error handler
