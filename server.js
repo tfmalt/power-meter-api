@@ -193,8 +193,7 @@ router.get('/usage', function (req, res) {
 
   debug('got usage: ', req.query);
 
-  ctrl.usage.get(duration, interval).then(function (data) {
-    res.json(data);
+  ctrl.getUsage(duration, interval).then(data => res.json(data));
   });
 });
 
