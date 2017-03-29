@@ -79,6 +79,10 @@ router.all('*', (req, res, next) => {
   next();
 });
 
+router.get('/', (req, res) => {
+  res.status(404)
+    .json({error: 'That is not a valid endpoint'});
+});
 /**
  * Health statistics web-service. returns the result from vitals express.
  */
@@ -93,15 +97,18 @@ router.get('/health', vitals.express);
  *   GET /power/watts/hour - list of average watts per minute over an hour.
  */
 router.get('/watts/:interval?', (req, res) => {
-  if (!req.params.hasOwnProperty('interval') || req.params.interval.match(/[0-9]+/)) {
+  debug('params:', req.params);
+  req.params.interval = req.params.interval || '5';
+
+  if (req.params.interval.match(/[0-9]+/)) {
     const interval = parseInt(req.params.interval, 10) || 5;
 
-    ctrl.watts.get(interval).done((body) => {
+    ctrl.getWatts(interval).done(body => {
       res.setHeader('Cache-Control', 'public, max-age=1');
       res.json(body);
     });
   } else if (req.params.interval.match(/^hour$/)) {
-    ctrl.watts.hour.get().done((body) => {
+    ctrl.getWattPerSecondLastHour().done((body) => {
       res.setHeader('Cache-Control', 'public, max-age=4');
       res.json(body);
     });
@@ -194,7 +201,6 @@ router.get('/usage', function (req, res) {
   debug('got usage: ', req.query);
 
   ctrl.getUsage(duration, interval).then(data => res.json(data));
-  });
 });
 
 /**
