@@ -80,8 +80,8 @@ router.all('*', (req, res, next) => {
 });
 
 router.get('/', (req, res) => {
-  res.status(404)
-    .json({error: 'That is not a valid endpoint'});
+  res.status(200)
+    .json({message: 'Service is running properly', version: 'v' + config.version});
 });
 /**
  * Health statistics web-service. returns the result from vitals express.
@@ -232,6 +232,10 @@ debug('HTTP  listening on port ' + config.server.port);
 debug('TZ:   ', process.env.TZ);
 debug('CWD:  ', process.cwd());
 debug('ARGS: ', process.argv);
+
+module.exports = {
+  app
+};
 
 /*
  * The MIT License (MIT)
