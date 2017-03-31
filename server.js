@@ -13,6 +13,7 @@
  */
 const debug      = require('debug')('power-meter:server');
 const config     = require('./config');
+const version    = require('./package').version;
 const logger     = require('morgan');
 const bluebird   = require('bluebird');
 const express    = require('express');
@@ -24,6 +25,7 @@ const redis = require('redis');
 bluebird.promisifyAll(redis.RedisClient.prototype);
 bluebird.promisifyAll(redis.Multi.prototype);
 
+config.version        = version;
 config.env            = process.env.NODE_ENV   || 'production';
 config.server.port    = process.env.PORT       || config.server.port;
 config.redis.host     = process.env.REDIS_HOST || config.redis.host;
@@ -49,9 +51,9 @@ vitals.monitor('mem', {units: 'MB'});
 vitals.monitor('tick', null);
 
 const app     = express();
-const logmode = (process.env.NODE_ENV === 'development') ? 'dev' : 'combined';
+const logmode = (config.env === 'development') ? 'dev' : 'combined';
 
-app.use(logger(logmode));
+if (config.env !== 'test') app.use(logger(logmode));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
@@ -73,7 +75,7 @@ router.all('*', (req, res, next) => {
 
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type');
-  res.header('Access-Control-Max-Age', 600);
+  res.header('Access-Control-Max-Age', 86400);
   res.header('Access-Control-Allow-Methods', 'GET, PUT, OPTIONS');
 
   next();
@@ -104,7 +106,7 @@ router.get('/watts/:interval?', (req, res) => {
     const interval = parseInt(req.params.interval, 10) || 5;
 
     ctrl.getWatts(interval).done(body => {
-      res.setHeader('Cache-Control', 'public, max-age=1');
+      res.setHeader('Cache-Control', 'public, max-age=5');
       res.json(body);
     });
   } else if (req.params.interval.match(/^hour$/)) {
