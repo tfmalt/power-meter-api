@@ -111,7 +111,7 @@ router.get('/watts/:interval?', (req, res) => {
     });
   } else if (req.params.interval.match(/^hour$/)) {
     ctrl.getWattPerSecondLastHour().done((body) => {
-      res.setHeader('Cache-Control', 'public, max-age=4');
+      res.setHeader('Cache-Control', 'public, max-age=30');
       res.json(body);
     });
   } else {
@@ -123,7 +123,7 @@ router.get('/watts/:interval?', (req, res) => {
 router.get('/kwh/date/:year?/:month?/:date?', (req, res) => {
   debug('/kwh/date');
 
-  ctrl.kwh.byDate(req.params).done((data) => {
+  ctrl.getKwhByDate(req.params).done((data) => {
     res.setHeader('Cache-Control', 'public, max-age=3600');
     res.json(data);
   });
