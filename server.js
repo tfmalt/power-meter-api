@@ -228,7 +228,7 @@ app.use((err, req, res, next) => {
   return false;
 });
 
-app.listen(config.server.port);
+if (!config.env === 'test') app.listen(config.server.port);
 
 debug('HTTP  listening on port ' + config.server.port);
 debug('TZ:   ', process.env.TZ);
