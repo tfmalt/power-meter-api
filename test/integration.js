@@ -127,10 +127,50 @@ describe('/kwh/date/:year?/:month?/:date?', () => {
 
   it('should return valid json for a valid month', (done) => {
     chai.request(app).get('/power/kwh/date/2017/03').end((err, res) => {
-      console.log(res.status);
-      console.log(res.body);
-      //  expect(err).to.be.null;
+      expect(err).to.be.null;
       expect(res).to.be.json;
+      expect(res.body).to.contain.keys(['perDay', 'kwh', 'description', 'time']);
+      done();
+    });
+  });
+});
+
+describe('/kwh/:type/:count?', () => {
+  it('should return valid json for /kwh/seconds', (done) => {
+    chai.request(app).get('/power/kwh/seconds').end((err, res) => {
+      expect(err).to.be.null;
+      expect(res).to.be.json;
+      expect(res.body).to.contain.keys(['summary', 'list', 'description', 'time']);
+      expect(res.body.list.length).to.equal(1);
+      done();
+    });
+  });
+
+  it('should return valid json for /kwh/seconds/30', (done) => {
+    chai.request(app).get('/power/kwh/seconds/30').end((err, res) => {
+      expect(err).to.be.null;
+      expect(res).to.be.json;
+      expect(res.body).to.contain.keys(['summary', 'list', 'description', 'time']);
+      expect(res.body.list.length).to.equal(3);
+      done();
+    });
+  });
+
+  it('should return valid json for /kwh/seconds/3600', (done) => {
+    chai.request(app).get('/power/kwh/seconds/3600').end((err, res) => {
+      expect(err).to.be.null;
+      expect(res).to.be.json;
+      expect(res.body).to.contain.keys(['summary', 'list', 'description', 'time']);
+      expect(res.body.list.length).to.equal(360);
+      done();
+    });
+  });
+
+  it('should return valid json for /kwh/today', (done) => {
+    chai.request(app).get('/power/kwh/today').end((err, res) => {
+      expect(err).to.be.null;
+      expect(res).to.be.json;
+      expect(res.body).to.contain.keys(['description', 'date', 'kwh']);
       done();
     });
   });
