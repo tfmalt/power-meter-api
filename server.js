@@ -153,21 +153,21 @@ router.get('/kwh/:type/:count?', (req, res) => {
     year:    10 * 60
   };
 
-  const type = req.params.type;
-  const count = req.params.count || 1;
-
-  if (!maxage.hasOwnProperty(type)) {
+  if (!maxage.hasOwnProperty(req.params.type)) {
     throw new TypeError('URI called with unsupported type');
   }
 
+  const type = req.params.type;
+  let count = req.params.count || 1;
   if (count !== 'this') count = parseInt(count, 10);
 
   debug('count: ', count);
+
   if (!Number.isInteger(count) && count !== 'this') {
     throw new TypeError('last param must be an integer or a keyword. got: ' + count);
   }
 
-  ctrl.kwh.handler(type, count).done(function (body) {
+  ctrl.handleKwh(type, count).done(function (body) {
     res.setHeader('Cache-Control', 'public, max-age=' + maxage[type]);
     res.json(body);
   });
@@ -228,7 +228,7 @@ app.use((err, req, res, next) => {
   return false;
 });
 
-if (!config.env === 'test') app.listen(config.server.port);
+if (!(config.env === 'test')) app.listen(config.server.port);
 
 debug('HTTP  listening on port ' + config.server.port);
 debug('TZ:   ', process.env.TZ);
