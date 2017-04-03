@@ -154,7 +154,7 @@ router.get('/kwh/:type/:count?', (req, res) => {
   };
 
   if (!maxage.hasOwnProperty(req.params.type)) {
-    throw new TypeError('URI called with unsupported type');
+    throw new TypeError('/power/kwh/:type called with invalid type');
   }
 
   const type = req.params.type;
