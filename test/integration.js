@@ -350,4 +350,14 @@ describe('/kwh/:type/:count?', () => {
       done();
     });
   });
+
+  it('should return error for /kwh/day/tullball', (done) => {
+    chai.request(app).get('/power/kwh/day/tullball').end((err, res) => {
+      expect(err).to.be.error;
+      expect(res).to.be.json;
+      expect(res).to.have.status(400);
+      expect(res.body).to.have.keys(['error', 'message']);
+      done();
+    });
+  });
 });
