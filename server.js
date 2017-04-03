@@ -42,7 +42,7 @@ redisclient.on('error', (error) => {
 });
 
 redisclient.on('ready', () => {
-  debug('redis connection is woring and ready.');
+  debug(`redis connection to ${config.redis.host} is working and ready.`);
 });
 
 const ctrl = new PowerMeterController(redisclient, config);
