@@ -97,6 +97,26 @@ describe('/kwh/date/:year?/:month?/:date?', () => {
     });
   });
 
+  it('should return error for an invalid date', (done) => {
+    chai.request(app).get('/power/kwh/date/2017/03/60').end((err, res) => {
+      expect(err).to.be.object;
+      expect(res).to.be.json;
+      expect(res).to.have.status(400);
+      expect(res.body).to.contain.keys(['error', 'message']);
+      done();
+    });
+  });
+
+  it('should return proper error code for a date we dont have', (done) => {
+    chai.request(app).get('/power/kwh/date/2017/03/02').end((err, res) => {
+      expect(err).to.be.object;
+      expect(res).to.be.json;
+      expect(res).to.have.status(404);
+      expect(res.body).to.contain.keys({error: 'Missing Data'});
+      done();
+    });
+  });
+
   it('should return proper error code for a year in the future', (done) => {
     const year = (new Date()).getFullYear() + 1;
 
@@ -125,11 +145,48 @@ describe('/kwh/date/:year?/:month?/:date?', () => {
     });
   });
 
+  it('should return valid json for a empty month', (done) => {
+    chai.request(app).get('/power/kwh/date/2017').end((err, res) => {
+      expect(err).to.be.null;
+      expect(res).to.be.json;
+      expect(res).to.have.status(200);
+      done();
+    });
+  });
+
   it('should return valid json for a valid month', (done) => {
     chai.request(app).get('/power/kwh/date/2017/03').end((err, res) => {
       expect(err).to.be.null;
       expect(res).to.be.json;
       expect(res.body).to.contain.keys(['perDay', 'kwh', 'description', 'time']);
+      done();
+    });
+  });
+
+  it('should return error for a month we dont have', (done) => {
+    chai.request(app).get('/power/kwh/date/2017/01').end((err, res) => {
+      expect(err).to.be.object;
+      expect(res).to.be.json;
+      expect(res).to.have.status(404);
+      expect(res.body).to.contain.keys(['error', 'message']);
+      done();
+    });
+  });
+
+  it('should return error for an invalid month', (done) => {
+    chai.request(app).get('/power/kwh/date/2017/17').end((err, res) => {
+      expect(err).to.be.object;
+      expect(res).to.be.json;
+      expect(res.body).to.contain.keys(['error', 'message']);
+      done();
+    });
+  });
+
+  it('should return error for undefined year /power/kwh/date', (done) => {
+    chai.request(app).get('/power/kwh/date/').end((err, res) => {
+      expect(err).to.be.object;
+      expect(res).to.be.json;
+      expect(res).to.have.status(400);
       done();
     });
   });

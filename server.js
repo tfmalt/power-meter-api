@@ -105,12 +105,12 @@ router.get('/watts/:interval?', (req, res) => {
   if (req.params.interval.match(/[0-9]+/)) {
     const interval = parseInt(req.params.interval, 10) || 5;
 
-    ctrl.getWatts(interval).done(body => {
+    ctrl.getWatts(interval).then(body => {
       res.setHeader('Cache-Control', 'public, max-age=5');
       res.json(body);
     });
   } else if (req.params.interval.match(/^hour$/)) {
-    ctrl.getWattPerSecondLastHour().done((body) => {
+    ctrl.getWattPerSecondLastHour().then((body) => {
       res.setHeader('Cache-Control', 'public, max-age=30');
       res.json(body);
     });
@@ -123,9 +123,16 @@ router.get('/watts/:interval?', (req, res) => {
 router.get('/kwh/date/:year?/:month?/:date?', (req, res) => {
   debug('/kwh/date');
 
-  ctrl.getKwhByDate(req.params).done((data) => {
+  ctrl.getKwhByDate(req.params).then((data) => {
     res.setHeader('Cache-Control', 'public, max-age=3600');
     res.json(data);
+  })
+  .catch(error => {
+    res.status(404).json({
+      error: 'Missing Data',
+      message: error.message,
+      version: config.version
+    });
   });
 });
 
@@ -167,9 +174,12 @@ router.get('/kwh/:type/:count?', (req, res) => {
     throw new TypeError('last param must be an integer or a keyword. got: ' + count);
   }
 
-  ctrl.handleKwh(type, count).done(function (body) {
+  ctrl.handleKwh(type, count).then(function (body) {
     res.setHeader('Cache-Control', 'public, max-age=' + maxage[type]);
     res.json(body);
+  })
+  .catch(error => {
+    console.log(error);
   });
 });
 
@@ -180,7 +190,7 @@ router.put('/meter/total', function (req, res) {
   ctrl.meter.total.put(req.body.value).catch(function (error) {
     res.status(400);
     res.json({error: error.name, message: error.message});
-  }).done(function (body) {
+  }).then(function (body) {
     res.json(body);
   });
 });
