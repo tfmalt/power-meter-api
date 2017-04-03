@@ -214,6 +214,7 @@ app.use('/power', router);
  * error handler
  */
 app.use((err, req, res, next) => {
+  /* istanbul ignore if */
   if (!err) return next();
 
   debug('got error: ', err);
