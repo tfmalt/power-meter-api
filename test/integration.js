@@ -83,6 +83,22 @@ describe('/power/watts', () => {
       done();
     });
   });
+
+  it('should return error for invalid interval', (done) => {
+    chai.request(app).get('/power/watts/tullball').end((err, res) => {
+      console.log(res.body);
+      expect(err).to.be.null;
+      expect(res).to.be.json;
+      expect(res).to.have.header('Cache-Control', 'public, max-age=30');
+      expect(res.body).to.have.keys(['description', 'version', 'container', 'items']);
+      expect(res.body.items.length).to.equal(60);
+      expect(res.body.items[0]).to.contain.keys(
+        ['time', 'watt', 'perSecond']
+      );
+      expect(res.body.items[0].perSecond.length).to.equal(6);
+      done();
+    });
+  });
 });
 
 describe('/kwh/date/:year?/:month?/:date?', () => {
