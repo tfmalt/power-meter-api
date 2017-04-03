@@ -184,4 +184,15 @@ describe('/kwh/:type/:count?', () => {
     });
   });
 
+  it('should return valid json for /kwh/hour/6', (done) => {
+    chai.request(app).get('/power/kwh/hour/6').end((err, res) => {
+      expect(err).to.be.null;
+      expect(res).to.be.json;
+      expect(res).to.have.status(200);
+      expect(res.body).to.contain.keys(['count', 'total', 'min', 'max', 'average', 'description']);
+      expect(res.body.count).to.equal(6);
+      expect(res.body.list.length).to.equal(res.body.count);
+      done();
+    });
+  });
 });
