@@ -190,25 +190,15 @@ router.get('/kwh/:type/:count?', (req, res) => {
  * PUT /power/meter/total
  */
 router.put('/meter/total', (req, res) => {
-  ctrl.putMeterTotal(req.body.value)
-    .then(body => {
-      res.json(body);
-    })
-    .catch(error => {
-      res.status(400);
-      res.json({error: error.name, message: error.message});
-    });
+  ctrl.putMeterTotal(req.body.value).then(body => res.json(body));
 });
 
 /**
  * GET /power/meter/total
  */
-router.get('/meter/total', function (req, res) {
+router.get('/meter/total', (req, res) => {
   res.setHeader('Cache-Control', 'public, max-age=6');
-
-  ctrl.meter.total.get().then(function (body) {
-    res.json(body);
-  });
+  ctrl.getMeterTotal().then(body => res.json(body));
 });
 
 router.get('/usage', function (req, res) {

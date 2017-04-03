@@ -362,7 +362,7 @@ describe('/kwh/:type/:count?', () => {
   });
 });
 
-describe('/power/meter/put', () => {
+describe('/power/meter/total', () => {
   it('should let me put a new valid meter value', (done) => {
     chai.request(app)
       .put('/power/meter/total')
@@ -376,5 +376,41 @@ describe('/power/meter/put', () => {
         );
         done();
       });
+  });
+
+  it('should return error with invalid value', (done) => {
+    chai.request(app)
+      .put('/power/meter/total')
+      .send({value: 'tullball'})
+      .end((err, res) => {
+        expect(err).to.be.object;
+        expect(res).to.be.json;
+        expect(res).to.have.status(400);
+        expect(res.body).to.have.keys(['error', 'message']);
+        done();
+      });
+  });
+
+  it('should return error with invalid body', (done) => {
+    chai.request(app)
+      .put('/power/meter/total')
+      .send({tullball: 'rullball'})
+      .end((err, res) => {
+        expect(err).to.be.object;
+        expect(res).to.be.json;
+        expect(res).to.have.status(400);
+        expect(res.body).to.have.keys(['error', 'message']);
+        done();
+      });
+  });
+
+  it('should return data with power meter total', (done) => {
+    chai.request(app).get('/power/meter/total').end((err, res) => {
+      expect(err).to.be.null;
+      expect(res).to.be.json;
+      expect(res).to.have.status(200);
+      expect(res.body).to.contain.keys(['description', 'time', 'total']);
+      done();
+    });
   });
 });
