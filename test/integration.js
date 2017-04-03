@@ -86,16 +86,10 @@ describe('/power/watts', () => {
 
   it('should return error for invalid interval', (done) => {
     chai.request(app).get('/power/watts/tullball').end((err, res) => {
-      console.log(res.body);
-      expect(err).to.be.null;
+      expect(err).to.be.object;
       expect(res).to.be.json;
-      expect(res).to.have.header('Cache-Control', 'public, max-age=30');
-      expect(res.body).to.have.keys(['description', 'version', 'container', 'items']);
-      expect(res.body.items.length).to.equal(60);
-      expect(res.body.items[0]).to.contain.keys(
-        ['time', 'watt', 'perSecond']
-      );
-      expect(res.body.items[0].perSecond.length).to.equal(6);
+      expect(res).to.have.status(400);
+      expect(res.body).to.have.keys(['error', 'message']);
       done();
     });
   });

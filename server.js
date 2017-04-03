@@ -119,8 +119,10 @@ router.get('/watts/:interval?', (req, res) => {
       res.json(body);
     });
   } else {
-    res.status(400);
-    res.json({error: 'Bad Request'});
+    throw new TypeError(
+      'Invalid interval given to /watts/:interval?. It must either be an ' +
+      'Integer representing seconds, or the keyword "hour".'
+    );
   }
 });
 
