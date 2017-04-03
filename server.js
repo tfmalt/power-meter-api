@@ -201,15 +201,6 @@ router.get('/meter/total', (req, res) => {
   ctrl.getMeterTotal().then(body => res.json(body));
 });
 
-router.get('/usage', function (req, res) {
-  const duration = req.query.duration || 60;
-  const interval = req.query.interval || 5;
-
-  debug('got usage: ', req.query);
-
-  ctrl.getUsage(duration, interval).then(data => res.json(data));
-});
-
 /**
  * GET /power/test
  */
@@ -233,6 +224,7 @@ app.use((err, req, res, next) => {
   return false;
 });
 
+/* istanbul ignore if */
 if (config.env !== 'test') app.listen(config.server.port);
 
 debug('HTTP  listening on port ' + config.server.port);

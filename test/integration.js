@@ -414,3 +414,15 @@ describe('/power/meter/total', () => {
     });
   });
 });
+
+describe('/power/test', () => {
+  it('should return json', (done) => {
+    chai.request(app).get('/power/test').end((err, res) => {
+      expect(err).to.be.null;
+      expect(res).to.be.json;
+      expect(res).to.have.status(200);
+      expect(res.body).to.have.keys(['message']);
+      done();
+    });
+  });
+});
