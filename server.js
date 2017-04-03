@@ -35,10 +35,12 @@ config.redis.password = process.env.REDIS_AUTH || config.redis.password;
 if (config.redis.password === '') delete config.redis.password;
 
 const redisclient = redis.createClient(config.redis);
+/* istanbul ignore next */
 redisclient.on('error', (error) => {
   debug('got error from redis server:', error.message, error);
   process.exit(1);
 });
+
 redisclient.on('ready', () => {
   debug('redis connection is woring and ready.');
 });
