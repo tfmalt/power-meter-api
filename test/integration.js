@@ -195,4 +195,92 @@ describe('/kwh/:type/:count?', () => {
       done();
     });
   });
+
+  it('should return valid json for /kwh/hour/1000', (done) => {
+    chai.request(app).get('/power/kwh/hour/1000').end((err, res) => {
+      expect(err).to.be.null;
+      expect(res).to.be.json;
+      expect(res).to.have.status(200);
+      expect(res.body).to.contain.keys(['count', 'total', 'min', 'max', 'average', 'description']);
+      expect(res.body.list.length).to.equal(res.body.count);
+      done();
+    });
+  });
+
+  it('should return valid json for /kwh/day/2', (done) => {
+    chai.request(app).get('/power/kwh/day/2').end((err, res) => {
+      expect(err).to.be.null;
+      expect(res).to.be.json;
+      expect(res).to.have.status(200);
+      expect(res.body).to.contain.keys(['count', 'total', 'min', 'max', 'average', 'description']);
+      expect(res.body.count).to.equal(2);
+      expect(res.body.list.length).to.equal(res.body.count);
+      done();
+    });
+  });
+
+  it('should return valid json for /kwh/day/100', (done) => {
+    chai.request(app).get('/power/kwh/day/100').end((err, res) => {
+      expect(err).to.be.null;
+      expect(res).to.be.json;
+      expect(res).to.have.status(200);
+      expect(res.body).to.contain.keys(['count', 'total', 'min', 'max', 'average', 'description']);
+      expect(res.body.list.length).to.equal(res.body.count);
+      done();
+    });
+  });
+
+  it('should return valid json for /kwh/week/1000', (done) => {
+    chai.request(app).get('/power/kwh/week/1000').end((err, res) => {
+      expect(err).to.be.null;
+      expect(res).to.be.json;
+      expect(res).to.have.status(200);
+      expect(res.body).to.contain.keys(['count', 'total', 'min', 'max', 'average', 'description']);
+      expect(res.body.list.length).to.equal(res.body.count);
+      done();
+    });
+  });
+
+  it('should return valid json for /kwh/week', (done) => {
+    chai.request(app).get('/power/kwh/week').end((err, res) => {
+      expect(err).to.be.null;
+      expect(res).to.be.json;
+      expect(res).to.have.status(200);
+      expect(res.body).to.contain.keys(['count', 'total', 'min', 'max', 'average', 'description']);
+      expect(res.body.list.length).to.equal(res.body.count);
+      done();
+    });
+  });
+
+  it('should return valid json for /kwh/month', (done) => {
+    chai.request(app).get('/power/kwh/month').end((err, res) => {
+      expect(err).to.be.null;
+      expect(res).to.be.json;
+      expect(res).to.have.status(200);
+      expect(res.body).to.contain.keys(['count', 'total', 'min', 'max', 'average', 'description']);
+      expect(res.body.list.length).to.equal(res.body.count);
+      done();
+    });
+  });
+
+  it('should return valid json for /kwh/month/10', (done) => {
+    chai.request(app).get('/power/kwh/month/10').end((err, res) => {
+      expect(err).to.be.null;
+      expect(res).to.be.json;
+      expect(res).to.have.status(200);
+      expect(res.body).to.contain.keys(['count', 'total', 'min', 'max', 'average', 'description']);
+      expect(res.body.list.length).to.equal(res.body.count);
+      done();
+    });
+  });
+
+  it('should return valid json for /kwh/month/this', (done) => {
+    chai.request(app).get('/power/kwh/month/this').end((err, res) => {
+      expect(err).to.be.null;
+      expect(res).to.be.json;
+      expect(res).to.have.status(200);
+      expect(res.body).to.contain.keys(['date', 'kwh', 'description']);
+      done();
+    });
+  });
 });
