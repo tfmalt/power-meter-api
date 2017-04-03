@@ -55,7 +55,9 @@ vitals.monitor('tick', null);
 const app     = express();
 const logmode = (config.env === 'development') ? 'dev' : 'combined';
 
+/* istanbul ignore if */
 if (config.env !== 'test') app.use(logger(logmode));
+
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
@@ -240,7 +242,7 @@ app.use((err, req, res, next) => {
   return false;
 });
 
-if (!(config.env === 'test')) app.listen(config.server.port);
+if (config.env !== 'test') app.listen(config.server.port);
 
 debug('HTTP  listening on port ' + config.server.port);
 debug('TZ:   ', process.env.TZ);
