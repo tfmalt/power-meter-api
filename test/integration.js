@@ -361,3 +361,20 @@ describe('/kwh/:type/:count?', () => {
     });
   });
 });
+
+describe('/power/meter/put', () => {
+  it('should let me put a new valid meter value', (done) => {
+    chai.request(app)
+      .put('/power/meter/total')
+      .send({value: 100000})
+      .end((err, res) => {
+        expect(err).to.be.null;
+        expect(res).to.be.json;
+        expect(res.body.result).to.equal('OK');
+        expect(res.body).to.contain.keys(
+          ['newValue', 'oldValue', 'delta', 'result', 'description']
+        );
+        done();
+      });
+  });
+});

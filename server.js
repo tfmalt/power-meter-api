@@ -180,7 +180,7 @@ router.get('/kwh/:type/:count?', (req, res) => {
     throw new TypeError('last param must be an integer or a keyword. got: ' + count);
   }
 
-  ctrl.handleKwh(type, count).then(function (body) {
+  ctrl.handleKwh(type, count).then(body => {
     res.setHeader('Cache-Control', 'public, max-age=' + maxage[type]);
     res.json(body);
   });
@@ -189,13 +189,15 @@ router.get('/kwh/:type/:count?', (req, res) => {
 /**
  * PUT /power/meter/total
  */
-router.put('/meter/total', function (req, res) {
-  ctrl.meter.total.put(req.body.value).catch(function (error) {
-    res.status(400);
-    res.json({error: error.name, message: error.message});
-  }).then(function (body) {
-    res.json(body);
-  });
+router.put('/meter/total', (req, res) => {
+  ctrl.putMeterTotal(req.body.value)
+    .then(body => {
+      res.json(body);
+    })
+    .catch(error => {
+      res.status(400);
+      res.json({error: error.name, message: error.message});
+    });
 });
 
 /**
