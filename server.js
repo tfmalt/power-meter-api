@@ -183,9 +183,6 @@ router.get('/kwh/:type/:count?', (req, res) => {
   ctrl.handleKwh(type, count).then(function (body) {
     res.setHeader('Cache-Control', 'public, max-age=' + maxage[type]);
     res.json(body);
-  })
-  .catch(error => {
-    console.log(error);
   });
 });
 
