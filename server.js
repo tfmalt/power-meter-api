@@ -8,49 +8,19 @@
  * the latest web technologies.
  *
  * @author Thomas Malt <thomas@malt.no>
- * @copyright Thomas Malt <thomas@malt.no>
+ * @copyright 2015-2017 Thomas Malt <thomas@malt.no>
  *
  */
-const debug      = require('debug')('power-meter:server');
-const config     = require('./config');
-const version    = require('./package').version;
-const logger     = require('morgan');
-const bluebird   = require('bluebird');
-const express    = require('express');
-const bodyParser = require('body-parser');
-const VitalSigns = require('vitalsigns');
+
+const debug                = require('debug')('power-meter:server');
+const logger               = require('morgan');
+const express              = require('express');
+const bodyParser           = require('body-parser');
 const PowerMeterController = require('./lib/power-meter-controller');
-const redis = require('redis');
+const util                 = require('./lib/power-meter-util');
+const config               = util.config;
 
-bluebird.promisifyAll(redis.RedisClient.prototype);
-bluebird.promisifyAll(redis.Multi.prototype);
-
-config.version        = version;
-config.env            = process.env.NODE_ENV   || 'production';
-config.server.port    = process.env.PORT       || config.server.port;
-config.redis.host     = process.env.REDIS_HOST || config.redis.host;
-config.redis.port     = process.env.REDIS_PORT || config.redis.port;
-config.redis.password = process.env.REDIS_AUTH || config.redis.password;
-
-if (config.redis.password === '') delete config.redis.password;
-
-const redisclient = redis.createClient(config.redis);
-/* istanbul ignore next */
-redisclient.on('error', (error) => {
-  debug('got error from redis server:', error.message, error);
-  process.exit(1);
-});
-
-redisclient.on('ready', () => {
-  debug(`redis connection to ${config.redis.host} is working and ready.`);
-});
-
-const ctrl = new PowerMeterController(redisclient, config);
-const vitals = new VitalSigns();
-
-vitals.monitor('cpu', null);
-vitals.monitor('mem', {units: 'MB'});
-vitals.monitor('tick', null);
+const ctrl = new PowerMeterController(util.redis, config);
 
 const app     = express();
 const logmode = (config.env === 'development') ? 'dev' : 'combined';
@@ -64,67 +34,6 @@ app.use(bodyParser.json());
 app.disable('x-powered-by');
 
 const router = express.Router();
-
-/**
- * Code to implement rudimentary CORS support.
- *
- * All requests are parsed through the cors validation.
- */
-router.all('*', (req, res, next) => {
-  // var origin = req.header('Origin');
-  // var index  = config.corsDomains.indexOf(origin);
-
-  debug('Doing CORS check');
-  debug(req.headers);
-
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type');
-  res.header('Access-Control-Max-Age', 86400);
-  res.header('Access-Control-Allow-Methods', 'GET, PUT, OPTIONS');
-
-  next();
-});
-
-router.get('/', (req, res) => {
-  res.status(200)
-    .json({message: 'Service is running properly', version: 'v' + config.version});
-});
-/**
- * Health statistics web-service. returns the result from vitals express.
- */
-router.get('/health', vitals.express);
-
-/**
- * Returns the watts for a given interval, default is 5.
- *
- * Syntax:
- *   GET /power/watts/:interval
- *   GET /power/watts/10 - average watt consumption during 10 seconds
- *   GET /power/watts/hour - list of average watts per minute over an hour.
- */
-router.get('/watts/:interval?', (req, res) => {
-  debug('params:', req.params);
-  req.params.interval = req.params.interval || '5';
-
-  if (req.params.interval.match(/[0-9]+/)) {
-    const interval = parseInt(req.params.interval, 10) || 5;
-
-    ctrl.getWatts(interval).then(body => {
-      res.setHeader('Cache-Control', 'public, max-age=5');
-      res.json(body);
-    });
-  } else if (req.params.interval.match(/^hour$/)) {
-    ctrl.getWattPerSecondLastHour().then((body) => {
-      res.setHeader('Cache-Control', 'public, max-age=30');
-      res.json(body);
-    });
-  } else {
-    throw new TypeError(
-      'Invalid interval given to /watts/:interval?. It must either be an ' +
-      'Integer representing seconds, or the keyword "hour".'
-    );
-  }
-});
 
 router.get('/kwh/date/:year?/:month?/:date?', (req, res) => {
   debug('/kwh/date');
@@ -209,6 +118,9 @@ router.get('/test', function (req, res) {
 });
 
 app.use('/power', router);
+app.use('/power', require('./controllers/power'));
+app.use('/power', require('./controllers/power-health'));
+app.use('/power', require('./controllers/power-watts'));
 
 /**
  * error handler

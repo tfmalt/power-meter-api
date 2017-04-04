@@ -1,5 +1,3 @@
-
-
 const chai = require('chai');
 const http = require('chai-http');
 const app  = require('../server').app;
@@ -36,7 +34,7 @@ describe('power API', () => {
       expect(err).to.be.null;
       expect(res).to.be.json;
       expect(res.body).to.deep.equal({
-        message: 'Service is running properly',
+        message: 'power-meter-api is running properly',
         version: 'v' + version
       });
       done();

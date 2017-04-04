@@ -11,4 +11,4 @@ RUN npm install
 ENV NODE_ENV=docker
 ENV DEBUG=power-meter:*
 
-CMD node ./server.js
+CMD npm start
