@@ -35,22 +35,6 @@ app.disable('x-powered-by');
 
 const router = express.Router();
 
-router.get('/kwh/date/:year?/:month?/:date?', (req, res) => {
-  debug('/kwh/date');
-
-  ctrl.getKwhByDate(req.params).then((data) => {
-    res.setHeader('Cache-Control', 'public, max-age=3600');
-    res.json(data);
-  })
-  .catch(error => {
-    res.status(404).json({
-      error: 'Missing Data',
-      message: error.message,
-      version: config.version
-    });
-  });
-});
-
 /**
  * Main handler for all the kwh routines.
  *
@@ -121,6 +105,7 @@ app.use('/power', router);
 app.use('/power', require('./controllers/power'));
 app.use('/power', require('./controllers/power-health'));
 app.use('/power', require('./controllers/power-watts'));
+app.use('/power', require('./controllers/power-kwh'));
 
 /**
  * error handler
