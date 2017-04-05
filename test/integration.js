@@ -1,6 +1,6 @@
 const chai = require('chai');
 const http = require('chai-http');
-const app  = require('../server').app;
+const app  = require('../app').app;
 const version = require('../package').version;
 const expect = chai.expect;
 
@@ -93,7 +93,7 @@ describe('/power/watts', () => {
   });
 });
 
-describe('/kwh/date/:year?/:month?/:date?', () => {
+describe('/kwh/date/:year/:month/:date', () => {
   it('should return valid json for a valid date', (done) => {
     chai.request(app).get('/power/kwh/date/2017/03/30').end((err, res) => {
       expect(err).to.be.null;
