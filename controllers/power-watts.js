@@ -1,4 +1,3 @@
-const debug   = require('debug')('power-meter:watts');
 const express = require('express');
 const watts   = express.Router();
 const util    = require('../lib/power-meter-util');
