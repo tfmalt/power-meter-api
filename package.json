@@ -40,8 +40,8 @@
     "npm": "^3.10.x"
   },
   "scripts": {
-    "test": "TZ=Europe/Oslo NODE_ENV=test nyc --reporter=text --reporter=lcov mocha **/*test.js",
-    "integration": "TZ=Europe/Oslo NODE_ENV=test nyc --reporter=text --reporter=lcov mocha **/*integration.js",
+    "test": "NODE_ENV=test nyc --reporter=text --reporter=lcov mocha **/*test.js",
+    "integration": "NODE_ENV=test nyc --reporter=text --reporter=lcov mocha **/*integration.js",
     "alltests": "redis-cli HDEL 2017 03 && TZ=Europe/Oslo NODE_ENV=test nyc --reporter=text --reporter=lcov mocha test/*.js",
     "codeclimate": "CODECLIMATE_REPO_TOKEN=d97115774297bc8039645d81ba3ba7aec5171db807e63aeebbdbddb7d7d10ca0 codeclimate-test-reporter < coverage/lcov.info",
     "start": "node ./app.js"
