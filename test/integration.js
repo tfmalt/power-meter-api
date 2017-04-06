@@ -99,8 +99,9 @@ describe('/kwh/date/:year/:month/:date', () => {
       expect(err).to.be.null;
       expect(res).to.be.json;
       expect(res.body).to.contain.keys({kwh: 77.3696, pulses: 773696});
-      expect(res.body).to.contain.keys(['perHour', 'description', 'time']);
+      expect(res.body).to.contain.keys(['timestamp', 'perHour', 'description', 'time']);
       expect(res.body.perHour.length).to.equal(24);
+      expect(new Date(res.body.timestamp - 43200).getDate()).to.equal(30);
       done();
     });
   });
@@ -132,7 +133,7 @@ describe('/kwh/date/:year/:month/:date', () => {
       expect(err).to.be.object;
       expect(res).to.be.json;
       expect(res).to.have.status(400);
-      expect(res.body.message).to.match(/Year must be between/);
+      expect(res.body.message).to.match(/Year must be a year between/);
       done();
     });
   });
@@ -148,7 +149,7 @@ describe('/kwh/date/:year/:month/:date', () => {
       expect(err).to.be.object;
       expect(res).to.be.json;
       expect(res).to.have.status(400);
-      expect(res.body.message).to.match(/Date is in the future/);
+      expect(res.body.message).to.match(/month is in the future/);
       done();
     });
   });
@@ -190,11 +191,12 @@ describe('/kwh/date/:year/:month/:date', () => {
     });
   });
 
-  it('should return error for undefined year /power/kwh/date', (done) => {
+  it('should polite message for undefined year /power/kwh/date', (done) => {
     chai.request(app).get('/power/kwh/date/').end((err, res) => {
-      expect(err).to.be.object;
+      expect(err).to.be.null;
       expect(res).to.be.json;
-      expect(res).to.have.status(400);
+      expect(res).to.have.status(200);
+      expect(res.body).to.have.keys(['version', 'description', 'usage']);
       done();
     });
   });
