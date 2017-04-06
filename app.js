@@ -12,15 +12,12 @@
  *
  */
 
-const debug                = require('debug')('power-meter:server');
-const logger               = require('morgan');
-const express              = require('express');
-const bodyParser           = require('body-parser');
-const PowerMeterController = require('./lib/power-meter-controller');
-const util                 = require('./lib/power-meter-util');
-const config               = util.config;
-
-const ctrl = new PowerMeterController(util.redis, config);
+const debug      = require('debug')('power-meter:server');
+const logger     = require('morgan');
+const express    = require('express');
+const bodyParser = require('body-parser');
+const util       = require('./lib/power-meter-util');
+const config     = util.config;
 
 const app     = express();
 const logmode = (config.env === 'development') ? 'dev' : 'combined';
@@ -28,88 +25,17 @@ const logmode = (config.env === 'development') ? 'dev' : 'combined';
 /* istanbul ignore if */
 if (config.env !== 'test') app.use(logger(logmode));
 
+app.disable('x-powered-by');
+
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
-app.disable('x-powered-by');
-
-const router = express.Router();
-
-/**
- * Main handler for all the kwh routines.
- *
- * Syntax:
- *   GET /power/kwh/:type/:count
- *   GET /power/kwh/seconds
- *   GET /power/kwh/hour
- *   GET /power/kwh/today
- *   GET /power/kwh/day
- *   GET /power/kwh/week
- *   GET /power/kwh/month - not implemented yet
- *   GET /power/kwh/year - not implemented yet
- */
-router.get('/kwh/:type/:count?', (req, res) => {
-  const maxage = {
-    seconds: 1,
-    today:   60,
-    hour:    5 * 60,
-    day:     10 * 60,
-    week:    10 * 60,
-    month:   10 * 60,
-    year:    10 * 60
-  };
-
-  if (!maxage.hasOwnProperty(req.params.type)) {
-    throw new TypeError('/power/kwh/:type called with invalid type');
-  }
-
-  const type = req.params.type;
-  let count = req.params.count || 1;
-  if (count !== 'this') count = parseInt(count, 10);
-
-  debug('count: ', count);
-
-  if (!Number.isInteger(count) && count !== 'this') {
-    throw new TypeError('last param must be an integer or a keyword. got: ' + count);
-  }
-
-  ctrl.handleKwh(type, count).then(body => {
-    res.setHeader('Cache-Control', 'public, max-age=' + maxage[type]);
-    res.json(body);
-  });
-});
-
-/**
- * PUT /power/meter/total
- */
-router.put('/meter/total', (req, res) => {
-  ctrl.putMeterTotal(req.body.value).then(body => res.json(body));
-});
-
-/**
- * GET /power/meter/total
- */
-router.get('/meter/total', (req, res) => {
-  res.setHeader('Cache-Control', 'public, max-age=6');
-  ctrl.getMeterTotal().then(body => res.json(body));
-});
-
-/**
- * GET /power/test
- */
-router.get('/test', function (req, res) {
-  res.json({message: 'ok now this works'});
-});
-
-app.use('/power', router);
 app.use('/power', require('./controllers/power'));
+app.use('/power', require('./controllers/power-meter'));
 app.use('/power', require('./controllers/power-health'));
 app.use('/power', require('./controllers/power-watts'));
 app.use('/power', require('./controllers/power-kwh'));
 
-/**
- * error handler
- */
 app.use((err, req, res, next) => {
   /* istanbul ignore if */
   if (!err) return next();
@@ -123,7 +49,7 @@ app.use((err, req, res, next) => {
 });
 
 /* istanbul ignore if */
-if (config.env !== 'test') app.listen(config.server.port);
+if (!module.parent) app.listen(config.server.port);
 
 debug('HTTP  listening on port ' + config.server.port);
 debug('TZ:   ', process.env.TZ);
