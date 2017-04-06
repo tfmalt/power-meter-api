@@ -2,13 +2,13 @@
 const chai = require('chai');
 // const version = require('../package').version;
 const expect = chai.expect;
-const PowerMC = require('../lib/power-meter-controller');
+const PowerMeterKwh = require('../lib/power-meter-kwh');
 
-const pmc = new PowerMC();
+const pmc = new PowerMeterKwh();
 
-describe('power-meter-controller unit-tests', () => {
-  it('should be an instance of PowerMeterController', () => {
-    expect(pmc).to.be.instanceof(PowerMC);
+describe('power-meter-kwh unit-tests', () => {
+  it('should be an instance of PowerMeterKwh', () => {
+    expect(pmc).to.be.instanceof(PowerMeterKwh);
   });
 
   it('handleKwh should throw error when called with invalid data', () => {
@@ -26,5 +26,9 @@ describe('power-meter-controller unit-tests', () => {
 
   it('normalizeDate should return date when level is week', () => {
     expect(pmc.normalizeDate(new Date(), 'week')).to.be.instanceof(Date);
+  });
+
+  it('assertYear should throw error with invalid year', () => {
+    expect(pmc.assertYear.bind(pmc, 'foobar')).to.throw(TypeError, /Year must be a valid/);
   });
 });
