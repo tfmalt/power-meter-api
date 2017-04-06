@@ -10,7 +10,7 @@ engines:
       - php
     checks:
       Similar code:
-        enabled: false
+        enabled: true
   eslint:
     enabled: true
   fixme:
