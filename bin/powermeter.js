@@ -28,37 +28,39 @@ const options = {
   }
 };
 
-args.usage('$0 <cmd> [args]').command('total', 'Print power meter kWh\'s total.', {
-  set: {
-    alias: 's',
-    default: 'false'
-  },
-  value: {
-    alias: 'v',
-    type: 'number',
-    default: parseInt('hello', 10)
-  }
-}, function (argv) {
-  options.path = '/power/meter/total';
+args.usage('$0 <cmd> [args]')
+  .command('total', 'Print power meter kWh\'s total.', {
+    set: {
+      alias: 's',
+      default: 'false'
+    },
+    value: {
+      alias: 'v',
+      type: 'number',
+      default: parseInt('hello', 10)
+    }
+  }, argv => {
+    options.path = '/power/meter/total';
 
-  if (argv.set === true) {
-    if (isNaN(argv.value)) {
-      console.log('SyntaxError: When setting the meter a valid value ' +
-        'must be provided.');
-      args.showHelp();
-      process.exit();
+    if (argv.set === true) {
+      if (isNaN(argv.value)) {
+        console.log(
+          'SyntaxError: When setting the meter a valid value ' +
+          'must be provided.'
+        );
+        args.showHelp();
+        process.exit();
+      }
+
+      const qstring = querystring.stringify({value: argv.value});
+      options.method = 'PUT';
+      options.headers['Content-Length'] = Buffer.byteLength(qstring);
+      options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
     }
 
-    const qstring = querystring.stringify({value: argv.value});
-    options.method = 'PUT';
-    options.headers['Content-Length'] = Buffer.byteLength(qstring);
-    options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-  }
-
-  const req = https.request(options, function (res) {
-    let str = '';
-    res.on('data', function (d) {
-      str = str + d;
+    const req = https.request(options, function (res) {
+      let str = '';
+      res.on('data', d => str = str + d);
     });
 
     res.on('end', function () {
