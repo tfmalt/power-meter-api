@@ -1,64 +1,62 @@
 #!/usr/bin/env node
-
 /**
  * A simple command line utility script to test the api.
  * Created by Thomas Malt on 22/02/16.
  */
-
 const jwt = require('json-web-token');
 const https = require('https');
 const querystring = require('querystring');
-const yargs = require('yargs');
+const args = require('args');
 
 const key = process.env.POWER_API_KEY;
 const secret = process.env.POWER_API_SECRET;
-const token = jwt.encode(secret, {"iss": key}).value;
+const token = jwt.encode(secret, {iss: key}).value;
 
-if (token === undefined) {
-  console.log("you must provide the api key and secret by setting the\n" +
-    "POWER_API_KEY and POWER_API_SECRET environment variables.");
+if (typeof token === 'undefined') {
+  console.log('you must provide the api key and secret by setting the\n' +
+    'POWER_API_KEY and POWER_API_SECRET environment variables.');
   process.exit();
 }
 
-var options = {
+const options = {
   hostname: 'api.malt.no',
   port: 443,
   path: '/power/test',
   method: 'GET',
   headers: {
-    'Authorization': 'Bearer ' + token
+    Authorization: 'Bearer ' + token
   }
 };
 
-yargs.usage("$0 <cmd> [args]").command('total', "Print power meter kWh's total.", {
-  'set': {
+args.usage('$0 <cmd> [args]').command('total', 'Print power meter kWh\'s total.', {
+  set: {
     alias: 's',
     default: 'false'
   },
-  'value': {
+  value: {
     alias: 'v',
     type: 'number',
-    default: parseInt("hello")
+    default: parseInt('hello', 10)
   }
-}, function(argv) {
-  options.path = "/power/meter/total";
+}, function (argv) {
+  options.path = '/power/meter/total';
 
   if (argv.set === true) {
     if (isNaN(argv.value)) {
-      console.log("SyntaxError: When setting the meter a valid value " +
-        "must be provided.");
-      yargs.showHelp();
+      console.log('SyntaxError: When setting the meter a valid value ' +
+        'must be provided.');
+      args.showHelp();
       process.exit();
     }
 
-    var qstring = querystring.stringify({"value": argv.value});
-    options.method = "PUT";
+    const qstring = querystring.stringify({value: argv.value});
+    options.method = 'PUT';
     options.headers['Content-Length'] = Buffer.byteLength(qstring);
     options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
   }
 
-  var req = https.request(options, function(res) {
-    var str = "";
+  const req = https.request(options, function (res) {
+    let str = '';
     res.on('data', function(d) {
       str += d;
     });
@@ -94,7 +92,7 @@ yargs.usage("$0 <cmd> [args]").command('total', "Print power meter kWh's total."
   // console.log('watts: ', argv);
   if (isNaN(argv.interval)) {
     console.log("SyntaxError: --interval, -i must be an integer.");
-    yargs.showHelp();
+    args.showHelp();
     process.exit();
   }
 

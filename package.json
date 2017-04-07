@@ -10,6 +10,7 @@
     "url": "https://github.com/tfmalt/power-meter-api.git"
   },
   "dependencies": {
+    "args": "^2.4.1",
     "bluebird": "^3.5.0",
     "body-parser": "^1.17.1",
     "cookie-parser": "^1.4.3",
@@ -20,8 +21,7 @@
     "morgan": "^1.8.1",
     "pug": "^2.0.0-beta11",
     "redis": "^2.7.1",
-    "vitalsigns": "^0.4.3",
-    "yargs": "^7.0.2"
+    "vitalsigns": "^0.4.3"
   },
   "devDependencies": {
     "blanket": "^1.2.3",
