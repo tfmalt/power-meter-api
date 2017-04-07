@@ -57,17 +57,17 @@ args.usage('$0 <cmd> [args]').command('total', 'Print power meter kWh\'s total.'
 
   const req = https.request(options, function (res) {
     let str = '';
-    res.on('data', function(d) {
-      str += d;
+    res.on('data', function (d) {
+      str = str + d;
     });
 
-    res.on('end', function() {
+    res.on('end', function () {
       if (argv.set === true) {
-        var data = JSON.parse(str);
+        const data = JSON.parse(str);
         console.log(data.description);
-        console.log("  old value:", data.oldValue);
-        console.log("  new value:", data.newValue);
-        console.log("      delta:", data.delta.toFixed(4));
+        console.log('  old value:', data.oldValue);
+        console.log('  new value:', data.newValue);
+        console.log('      delta:', data.delta.toFixed(4));
       } else {
         console.log('Meter total:', str);
       }
