@@ -50,9 +50,9 @@ watts.get('/watts/:interval?', (req, res) => {
     .then(values => ({
       description: 'Current Usage in Watts, averaged over interval seconds',
       version: util.version,
-      max:  util.maxWatt(values),
-      min:  util.minWatt(values),
-      watt: util.avgWatt(values),
+      max:  parseInt(util.maxWatt(values), 10),
+      min:  parseInt(util.minWatt(values), 10),
+      watt: parseInt(util.avgWatt(values), 10),
       time: values[0].time,
       interval
     }))
