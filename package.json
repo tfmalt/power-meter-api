@@ -1,6 +1,6 @@
 {
   "name": "power-meter-api",
-  "version": "2.1.4",
+  "version": "2.1.5",
   "author": "Thomas Malt",
   "description": "API for accessing power meter data from a redis database backend.",
   "private": true,
