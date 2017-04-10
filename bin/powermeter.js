@@ -3,121 +3,61 @@
  * A simple command line utility script to test the api.
  * Created by Thomas Malt on 22/02/16.
  */
-const jwt = require('json-web-token');
-const https = require('https');
-const querystring = require('querystring');
+// const https = require('https');
+// const querystring = require('querystring');
 const args = require('args');
+const fetch = require('node-fetch');
+const chalk = require('chalk');
 
 const key = process.env.POWER_API_KEY;
 const secret = process.env.POWER_API_SECRET;
-const token = jwt.encode(secret, {iss: key}).value;
 
-if (typeof token === 'undefined') {
-  console.log('you must provide the api key and secret by setting the\n' +
-    'POWER_API_KEY and POWER_API_SECRET environment variables.');
-  process.exit();
-}
-
-const options = {
-  hostname: 'api.malt.no',
-  port: 443,
-  path: '/power/test',
-  method: 'GET',
-  headers: {
-    Authorization: 'Bearer ' + token
+args.options([
+  {
+    name: 'uri',
+    description: 'The base uri to use for requests.',
+    defaultValue: 'http://localhost:3000'
+  },
+  {
+    name: 'key',
+    description: 'API key to access the API',
+    defaultValue: null
   }
-};
+]);
 
-args.usage('$0 <cmd> [args]')
-  .command('total', 'Print power meter kWh\'s total.', {
-    set: {
-      alias: 's',
-      default: 'false'
-    },
-    value: {
-      alias: 'v',
-      type: 'number',
-      default: parseInt('hello', 10)
-    }
-  }, argv => {
-    options.path = '/power/meter/total';
-
-    if (argv.set === true) {
-      if (isNaN(argv.value)) {
-        console.log(
-          'SyntaxError: When setting the meter a valid value ' +
-          'must be provided.'
-        );
-        args.showHelp();
-        process.exit();
-      }
-
-      const qstring = querystring.stringify({value: argv.value});
-      options.method = 'PUT';
-      options.headers['Content-Length'] = Buffer.byteLength(qstring);
-      options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-    }
-
-    const req = https.request(options, function (res) {
-      let str = '';
-      res.on('data', d => str = str + d);
+args.command('usage', 'Current electricity usage.', (name, sub, options) => {
+  const url = options.uri + '/power/kwh/seconds/3600';
+  fetch(url)
+    .then(res => res.json())
+    .then(json => {
+      console.log(chalk.dim('                max  avg  min'));
+      console.log(
+        'Load last hour:',
+        chalk.cyan(json.summary.watts.max),
+        chalk.cyan.underline(json.summary.watts.average),
+        chalk.cyan(json.summary.watts.min),
+        'Watt.'
+      );
+      console.log(
+        'Total usage last hour:',
+        chalk.cyan(json.summary.kwh.total),
+        'kWh.');
     });
 
-    res.on('end', function () {
-      if (argv.set === true) {
-        const data = JSON.parse(str);
-        console.log(data.description);
-        console.log('  old value:', data.oldValue);
-        console.log('  new value:', data.newValue);
-        console.log('      delta:', data.delta.toFixed(4));
-      } else {
-        console.log('Meter total:', str);
-      }
+  fetch(options.uri + '/power/watts')
+    .then(res => res.json())
+    .then(json => {
+      console.log('Right now the load is', chalk.cyan(json.watt), 'Watt.');
+    })
+    .catch(err => {
+      console.error('Error:', err.name, err.message);
     });
-  });
+});
 
-  if (argv.set === true) {
-    req.write(qstring);
-  }
-  req.end();
+args.parse(process.argv);
 
-  req.on('error', function(e) {
-    console.error(e);
-  });
-}).command('watts', 'Print current power consumption in watts', {
-  'interval': {
-    alias: 'i',
-    default: 5,
-    type: 'number'
-  }
-}, function(argv) {
-  // console.log('watts: ', argv);
-  if (isNaN(argv.interval)) {
-    console.log("SyntaxError: --interval, -i must be an integer.");
-    args.showHelp();
-    process.exit();
-  }
-
-  options.path = "/power/watts/" + argv.interval;
-
-  var req = https.request(options, function(res) {
-    var str = "";
-    res.on('data', function(d) {
-      str += d;
-    });
-
-    res.on('end', function() {
-      var data = JSON.parse(str);
-      console.log(data.description + ":");
-      console.log("   Watts:", data.watt);
-      console.log("     Max:", data.max);
-      console.log("     Min:", data.min);
-      console.log('Interval:', data.interval);
-    });
-  });
-  req.end();
-
-  req.on('error', function(e) {
-    console.error(e);
-  });
-}).help('h').alias('h', 'help').argv;
+// if (typeof token === 'undefined') {
+//   console.log('you must provide the api key and secret by setting the\n' +
+//     'POWER_API_KEY and POWER_API_SECRET environment variables.');
+//   process.exit();
+// }
