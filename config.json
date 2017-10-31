@@ -10,5 +10,6 @@
   },
   "start": {
     "year": 2017
-  }
+  },
+  "impsPerKwh": 1000
 }
