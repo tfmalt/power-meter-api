@@ -1,6 +1,6 @@
 
-FROM node:boron-alpine
-MAINTAINER thomas@malt.no
+FROM node:carbon-alpine
+LABEL maintainer="thomas@malt.no"
 
 RUN mkdir -p /usr/lib/power/api
 WORKDIR /usr/lib/power/api

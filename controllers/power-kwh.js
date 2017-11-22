@@ -67,7 +67,7 @@ route.get('/kwh/date/:year/:month/:day', (req, res) => {
  *   GET /power/kwh/today
  *   GET /power/kwh/day
  *   GET /power/kwh/week
- *   GET /power/kwh/month - not implemented yet
+ *   GET /power/kwh/month 
  *   GET /power/kwh/year - not implemented yet
  */
 route.get('/kwh/:type/:count?', (req, res, next) => {
